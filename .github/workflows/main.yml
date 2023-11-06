@@ -17,9 +17,6 @@ jobs:
   test-cookiecutter:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Setup node
         uses: actions/setup-node@v3
         with:
