@@ -1,7 +1,7 @@
 set -x -e
 
 pip install cookiecutter
-cookiecutter --no-input gh:jiangok2006/cookiecutter-remix
+cookiecutter --no-input cookiecutter-remix-code
 cd cookiecutter_remix
 echo "listing files..."
 ls -al
