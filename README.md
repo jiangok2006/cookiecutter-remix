@@ -1,3 +1,9 @@
+# Install
+
+1. install cookiecutter `cookiecutter gh:jiangok2006/cookiecutter-remix`
+1. install dependencies `npm install`
+1. run remix server `npm run dev` and browse http://localhost:3000.
+
 # Changelog
 
 11/6/2023: setup a
