@@ -16,8 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  check-links:
-    runs-on: ${{ fromJSON('["ubuntu-latest", "self-hosted"]')[github.repository == 'github/docs-internal'] }}
+  test-cookiecutter:
+    runs-on: ${{ fromJSON('["ubuntu-latest"]')[github.repository == 'jiangok2006/cookiecutter-remix'] }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
