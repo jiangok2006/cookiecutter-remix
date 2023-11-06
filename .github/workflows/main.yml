@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: 20.9.0
           cache: npm
+          cache-dependency-path: "{{cookiecutter.project_slug}}/package-lock.json"
 
       - name: Install
         run: npm ci
