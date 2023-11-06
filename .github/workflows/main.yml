@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   test-cookiecutter:
-    runs-on: ${{ fromJSON('["ubuntu-latest"]')[github.repository == 'jiangok2006/cookiecutter-remix'] }}
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
