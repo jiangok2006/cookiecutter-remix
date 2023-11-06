@@ -1,4 +1,4 @@
-name: 'cookie cutter test'
+name: 'test'
 
 on:
   workflow_dispatch:
