@@ -29,13 +29,5 @@ jobs:
           cache: npm
           cache-dependency-path: "{{cookiecutter.project_slug}}/package-lock.json"
 
-      - name: Install
-        run: npm ci
-
-      - name: Gather files changed
-        uses: trilom/file-changes-action@a6ca26c14274c33b15e6499323aac178af06ad4b
-        with:
-          fileOutput: 'json'
-
-      - name: Show files changed
-        run: cat $HOME/files.json
+      - name: test
+        run: scripts/test.sh
