@@ -7,4 +7,6 @@ npm install
 npx playwright install --with-deps
 
 npm run dev &
-npx playwright test
+npx run test
+npx run ui_test
+
