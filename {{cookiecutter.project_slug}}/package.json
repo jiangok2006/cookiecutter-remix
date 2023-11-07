@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev --manual",
+    "dev": "remix dev -c \"node server.mjs\"",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc"
   },
