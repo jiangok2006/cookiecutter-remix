@@ -27,13 +27,6 @@ jobs:
           cache: npm
           cache-dependency-path: "{{cookiecutter.project_slug}}/package-lock.json"
 
-      - name: setup test
+      - name: test
         run: scripts/test.sh
-
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
   
