@@ -1,7 +1,10 @@
 set -x -e
 
 pip install cookiecutter
-cookiecutter --no-input gh:jiangok2006/cookiecutter-remix
+cookiecutter --no-input .
 cd cookiecutter_remix
 npm install
+npx playwright install --with-deps
+
 npm run dev &
+npx playwright test
