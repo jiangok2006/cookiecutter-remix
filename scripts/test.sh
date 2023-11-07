@@ -1,5 +1,7 @@
 set -x -e
 
+#!/bin/bash
+
 pip install cookiecutter
 cookiecutter --no-input .
 cd cookiecutter_remix
