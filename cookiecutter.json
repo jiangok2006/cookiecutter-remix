@@ -1,5 +1,12 @@
 {
   "project_name": "Cookiecutter Remix",
   "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
-  "author": "Lian Jiang"
+  "author": "Lian Jiang",
+  "_copy_without_render": [
+    "*.html",
+    "*.js",
+    "*.map",
+    "*.css",
+    "*.ts"
+]
 }
