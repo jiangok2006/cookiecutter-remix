@@ -16,7 +16,8 @@
 # Note
 `{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder without `{}` makes liveload work again. Also, it makes vscode not able to find modules for ts files in the root directory.
 
-must init jest using `npx ts-jest config:init package.json `. The default jest.config.js does not work due to "This file is being treated as an ES module because it has a '.js' file extension and '/Users/lian.jiangopendoor.com/repo/cookiecutter-remix/cookiecutter.project_slug/package.json' contains "type": "module". To treat it as a CommonJS script, rename it to use the '.cjs' file extension.".
+
+`*.test.ts` is run by jest and `*.spec.ts` by playwright.
 
 # References
 

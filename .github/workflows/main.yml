@@ -23,7 +23,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: 20.9.0
+          node-version: 21.0.0
           cache: npm
           cache-dependency-path: "{{cookiecutter.project_slug}}/package-lock.json"
 
