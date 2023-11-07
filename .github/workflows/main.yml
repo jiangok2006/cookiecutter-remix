@@ -20,13 +20,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.9.0
-          cache: npm
-          cache-dependency-path: "{{cookiecutter.project_slug}}/package-lock.json"
-
       - name: test
         run: scripts/test.sh
   
