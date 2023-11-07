@@ -19,8 +19,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          path: cookiecutter-remix-code
 
       - name: Setup node
         uses: actions/setup-node@v3
