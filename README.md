@@ -17,7 +17,7 @@
 `{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder without `{}` makes liveload work again. Also, it makes vscode not able to find modules for ts files in the root directory. ALWAYS removing `{}` when working on it and restore after test pass.
 
 
-`*.test.ts` is run by jest and `*.spec.ts` by playwright.
+`*.test.ts` is run by vitest and `*.spec.ts` by playwright.
 
 # References
 
