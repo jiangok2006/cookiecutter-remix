@@ -19,6 +19,9 @@
 
 `*.test.ts` is run by jest and `*.spec.ts` by playwright.
 
+
+`*.test.ts` is run by jest and `*.spec.ts` by playwright.
+
 # References
 
 [cookiecutter](https://cookiecutter.readthedocs.io/en/2.4.0/tutorials/tutorial2.html#step-1-name-your-cookiecutter)
