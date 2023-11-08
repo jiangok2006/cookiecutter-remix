@@ -1,9 +1,17 @@
+import prisma from '@/app/libs/prisma';
+import stylesheet from "@/app/tailwind.css";
+import { Prisma } from '@prisma/client';
 import type { LinksFunction, MetaFunction } from "@remix-run/node";
-import stylesheet from "~/tailwind.css";
 
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: stylesheet },
 ];
+
+export const createUser = async (user: Prisma.UserCreateInput) => {
+  return await prisma.user.create({
+    data: user,
+  })
+}
 
 export const meta: MetaFunction = () => {
   return [

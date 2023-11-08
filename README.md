@@ -1,23 +1,18 @@
+# Introduction
+
+This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for *.test.ts), playwright (for ui test *.spec.ts).
+
 # Install
 
 1. install cookiecutter `cookiecutter gh:jiangok2006/cookiecutter-remix`
 1. install dependencies `npm install`
 1. run remix server `npm run dev` and browse http://localhost:3000.
+1. test `npm run test`
+1. ui_test `npm run ui_test`
 
-# Changelog
+# Misc
 
-11/6/2023: setup a
-[base remix project](https://remix.run/docs/en/main/start/quickstart)
-
-# Tests
-
-1. ui test `npm run dev`
-
-# Note
-`{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder without `{}` makes liveload work again. Also, it makes vscode not able to find modules for ts files in the root directory. ALWAYS removing `{}` when working on it and restore after test pass.
-
-
-`*.test.ts` is run by jest and `*.spec.ts` by playwright.
+`{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder without `{}` makes liveload work again. Also, it makes vscode not able to find modules for ts files in the root directory. ALWAYS renaming it (e.g. my) when working on it and restore after test pass.
 
 # References
 
