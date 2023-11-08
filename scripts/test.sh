@@ -1,6 +1,6 @@
-set -x -e
-
 #!/bin/bash
+
+set -ex
 
 pip install cookiecutter
 cookiecutter --no-input .
