@@ -8,7 +8,12 @@ cd cookiecutter_remix
 npm install
 npx playwright install --with-deps
 
-npm run dev &
-npm run test:unit
-npm run ui_test:e2e
+if [ "$1" == "unit" ] then
+    npm run test:unit
+elif [ "$1" == "integration" ] then
+    npm run test:integration
+else
+    npm run dev &
+    npm run test:e2e
+endif
 

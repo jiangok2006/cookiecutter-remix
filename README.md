@@ -1,4 +1,6 @@
-![test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main.yml/badge.svg)
+![unit test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_unit_test.yml/badge.svg)
+![integration_test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_integration_test.yml/badge.svg)
+![e2e_test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
 
 # Introduction
 

@@ -1,4 +1,4 @@
-name: 'test'
+name: 'integration test'
 
 on:
   workflow_dispatch:
@@ -14,12 +14,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test-cookiecutter:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: test
-        run: scripts/test.sh
+        run: scripts/test.sh integration
   
