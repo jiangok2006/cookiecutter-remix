@@ -10,7 +10,7 @@
     "typecheck": "tsc",
     "test:e2e": "playwright test",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
-    "test:int": "vitest -c ./vitest.config.integration.ts"
+    "test:integration": "vitest -c ./vitest.config.integration.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.5.2",
