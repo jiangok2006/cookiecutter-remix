@@ -8,9 +8,9 @@
     "dev": "remix dev -c \"node server.mjs\"",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
-    "ui_test": "playwright test",
-    "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "test:e2e": "playwright test",
+    "test:unit": "vitest -c ./vitest.config.unit.ts",
+    "test:integration": "vitest -c ./vitest.config.integration.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.5.2",
