@@ -1,3 +1,5 @@
+![test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main.yml/badge.svg)
+
 # Introduction
 
 This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for *.test.ts), playwright (for ui test *.spec.ts).
@@ -7,8 +9,7 @@ This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for *.test.
 1. install cookiecutter `cookiecutter gh:jiangok2006/cookiecutter-remix`
 1. install dependencies `npm install`
 1. run remix server `npm run dev` and browse http://localhost:3000.
-1. test `npm run test`
-1. ui_test `npm run ui_test`
+1. test `npm run test:[unit|int|e2e]`
 
 # Misc
 
