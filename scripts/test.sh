@@ -9,6 +9,6 @@ npm install
 npx playwright install --with-deps
 
 npm run dev &
-npm run test
-npm run ui_test
+npm run test:unit
+npm run ui_test:e2e
 
