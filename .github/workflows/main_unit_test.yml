@@ -25,4 +25,6 @@ jobs:
 
       - name: Vitest Coverage Report
         uses: davelosert/vitest-coverage-report-action@v2.1.1
-  
+        with:
+          name: 'unit test'
+          json-summary-path: './cookiecutter_remix/coverage/coverage-summary.json'
