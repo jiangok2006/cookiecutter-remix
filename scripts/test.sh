@@ -9,6 +9,10 @@ function start_db {
     npx prisma migrate dev --name init
 }
 
+function start_http_server {
+    npx pnpm run dev &
+}
+
 pip install cookiecutter
 cookiecutter --no-input .
 cd cookiecutter_remix
@@ -23,11 +27,12 @@ if [ "$1" == "unit" ]; then
 elif [ "$1" == "integration" ]; then
     echo "Running integration tests"
     start_db
+    start_http_server
     npx pnpm run test:integration
 else
     echo "Running e2e tests"
     start_db
-    npx pnpm run dev &
+    start_http_server
     npx pnpm run test:e2e
 fi
 
