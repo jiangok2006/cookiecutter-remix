@@ -15,6 +15,8 @@ cd cookiecutter_remix
 npx pnpm install
 npx playwright install --with-deps
 
+export DATABASE_URL="postgres://postgres:postgres@localhost:54323/postgres"
+
 if [ "$1" == "unit" ]; then
     echo "Running unit tests"
     npx pnpm run test:unit
