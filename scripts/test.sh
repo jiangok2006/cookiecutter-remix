@@ -2,11 +2,11 @@
 
 set -ex
 
-POSTGRES_HOST="localhost"
-POSTGRES_DB="postgres"
-POSTGRES_PORT="54323"
-POSTGRES_PASSWORD="postgres"
-DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+export POSTGRES_HOST="localhost"
+export POSTGRES_DB="postgres"
+export POSTGRES_PORT="54323"
+export POSTGRES_PASSWORD="postgres"
+export DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
 
 
 function start_db {
