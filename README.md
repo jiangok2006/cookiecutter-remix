@@ -1,5 +1,6 @@
 ![unit test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_unit_test.yml/badge.svg)
-![e2e_test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
+![integration test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
+![e2e test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
 
 # Introduction
 
