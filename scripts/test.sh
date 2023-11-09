@@ -2,6 +2,8 @@
 
 set -ex
 
+DIR=$(pwd) 
+
 export POSTGRES_HOST="localhost"
 export POSTGRES_DB="postgres"
 export POSTGRES_PORT="54323"
@@ -12,7 +14,7 @@ export DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PO
 function start_db {
     docker-compose up -d
     echo '🟡 - Waiting for database to be ready...'
-    ./wait-for-it.sh "${DATABASE_URL}" -- echo '🟢 - Database is ready!'
+    $DIR/cookiecutter_remix/scripts/wait-for-it.sh "${DATABASE_URL}" -- echo '🟢 - Database is ready!'
     npx prisma migrate dev --name init
 }
 
