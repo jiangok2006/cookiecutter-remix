@@ -4,17 +4,23 @@
 
 # Introduction
 
-This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for
-*.test.ts), playwright (for ui test *.spec.ts).
+This cookiecutter is to address setup pain points with opinionated tooling choices:
+
+* use remix for unified front/backend development.
+* favor typescript over js
+* favor vitest over jest
+* use github action for ci
+* use playwright for e2e test
+* use supabase for seamless local to cloude development transition.
 
 # Install
 
 1. install cookiecutter `cookiecutter gh:jiangok2006/cookiecutter-remix`
-1. install dependencies `npm install`
-1. run remix server `npm run dev` and browse http://localhost:3000.
-1. test `npm run test:[unit|int|e2e]`
+1. install dependencies `npx pnpm install`
+1. run remix server `npx pnpm run dev` and browse http://localhost:3000.
+1. test `npx pnpm run test:[unit|integration|e2e]`
 
-# Misc
+Note:
 
 `{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder
 without `{}` makes liveload work again. Also, it makes vscode not able to find
