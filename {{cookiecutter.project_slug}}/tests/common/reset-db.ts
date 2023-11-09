@@ -1,5 +1,4 @@
-import prisma from '../../prisma/prisma_client'
-
+import prisma from '@/app/libs/prisma'
 
 export default async () => {
   await prisma.$transaction([

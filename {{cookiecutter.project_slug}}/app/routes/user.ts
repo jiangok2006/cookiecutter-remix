@@ -1,6 +1,6 @@
 import prisma from '@/app/libs/prisma';
 import { Prisma } from '@prisma/client';
-import { ActionFunctionArgs, json } from "@remix-run/node";
+import { ActionFunctionArgs, json } from "@remix-run/cloudflare";
 
 
 const getUsers = async () => {
@@ -20,7 +20,7 @@ export const loader = async () => {
 export async function action({ request }: ActionFunctionArgs) {
     switch (request.method) {
         case "POST": {
-            const payload = await request.json();
+            const payload = await request.json<Prisma.UserCreateInput>();
             const user = await createUser(payload)
             return user
         }
