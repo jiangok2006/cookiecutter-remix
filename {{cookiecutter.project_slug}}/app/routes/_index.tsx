@@ -1,4 +1,4 @@
-import { type MetaFunction } from "@remix-run/node";
+import type { MetaFunction } from "@remix-run/cloudflare";
 
 
 import stylesheet from "@/app/tailwind.css";
@@ -6,10 +6,10 @@ import { type LinksFunction } from "@remix-run/node";
 
 
 export const links: LinksFunction = () => [
-    { rel: "stylesheet", href: stylesheet },
-  ];
+  { rel: "stylesheet", href: stylesheet },
+];
 
-  
+
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },

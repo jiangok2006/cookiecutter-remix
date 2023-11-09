@@ -4,14 +4,7 @@
 
 # Introduction
 
-This cookiecutter is to address setup pain points with opinionated tooling choices:
-
-* use remix for unified front/backend development.
-* favor typescript over js
-* favor vitest over jest
-* use github action for ci
-* use playwright for e2e test
-* use supabase for seamless local to cloude development transition.
+This cookiecutter is to address setup pain points with opinionated tooling choices: remix, typescript, vitest, github action, playwright, supabase, cloudflare, tailwind.
 
 # Install
 
