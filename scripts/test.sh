@@ -2,6 +2,13 @@
 
 set -ex
 
+POSTGRES_HOST="localhost"
+POSTGRES_DB="postgres"
+POSTGRES_PORT="54323"
+POSTGRES_PASSWORD="postgres"
+DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+
+
 function start_db {
     docker-compose up -d
     echo '🟡 - Waiting for database to be ready...'
@@ -18,8 +25,6 @@ cookiecutter --no-input .
 cd cookiecutter_remix
 npx pnpm install
 npx playwright install --with-deps
-
-export DATABASE_URL="postgres://postgres:postgres@localhost:54323/postgres"
 
 if [ "$1" == "unit" ]; then
     echo "Running unit tests"
