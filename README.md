@@ -1,9 +1,11 @@
 ![unit test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_unit_test.yml/badge.svg)
-![e2e_test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
+![integration test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
+![e2e test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
 
 # Introduction
 
-This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for *.test.ts), playwright (for ui test *.spec.ts).
+This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for
+*.test.ts), playwright (for ui test *.spec.ts).
 
 # Install
 
@@ -14,10 +16,15 @@ This cookiecutter uses: remix, supabase, typescript, prisma, vitest (for *.test.
 
 # Misc
 
-`{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder without `{}` makes liveload work again. Also, it makes vscode not able to find modules for ts files in the root directory. ALWAYS renaming it (e.g. my) when working on it and restore after test pass.
+`{{cookiecutter.project_slug}}` disables liveload. Renaming it to a folder
+without `{}` makes liveload work again. Also, it makes vscode not able to find
+modules for ts files in the root directory. ALWAYS renaming it (e.g. my) when
+working on it and restore after test pass.
 
 # References
 
 [cookiecutter](https://cookiecutter.readthedocs.io/en/2.4.0/tutorials/tutorial2.html#step-1-name-your-cookiecutter)
 
 [remix and typescript project](https://coderpad.io/blog/development/how-to-build-a-web-application-with-typescript-and-remix/)
+
+[prisma integration test](https://www.prisma.io/blog/testing-series-3-aBUyF8nxAn)

@@ -1,24 +1,22 @@
-import prisma from '@/app/libs/prisma';
+import { type MetaFunction } from "@remix-run/node";
+
+
 import stylesheet from "@/app/tailwind.css";
-import { Prisma } from '@prisma/client';
-import type { LinksFunction, MetaFunction } from "@remix-run/node";
+import { type LinksFunction } from "@remix-run/node";
+
 
 export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: stylesheet },
-];
+    { rel: "stylesheet", href: stylesheet },
+  ];
 
-export const createUser = async (user: Prisma.UserCreateInput) => {
-  return await prisma.user.create({
-    data: user,
-  })
-}
-
+  
 export const meta: MetaFunction = () => {
   return [
     { title: "New Remix App" },
     { name: "description", content: "Welcome to Remix" },
   ];
 };
+
 
 export default function Index() {
   return (

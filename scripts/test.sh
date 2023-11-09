@@ -2,21 +2,45 @@
 
 set -ex
 
+DIR=$(pwd) 
+
+export POSTGRES_HOST="localhost"
+export POSTGRES_DB="postgres"
+export POSTGRES_PORT="54323"
+export POSTGRES_PASSWORD="postgres"
+export DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+
+export HTTP_SERVER="http://localhost:3000"
+
+function start_db {
+    docker-compose up -d
+    echo '🟡 - Waiting for database to be ready...'
+    $DIR/scripts/wait-for-it.sh "${DATABASE_URL}" -- echo '🟢 - Database is ready!'
+    npx prisma migrate dev --name init
+}
+
+function start_http_server {
+    npx pnpm run dev &
+    $DIR/scripts/wait-for-it.sh "${HTTP_SERVER}" -- echo '🟢 - http server is ready!'
+}
+
 pip install cookiecutter
 cookiecutter --no-input .
 cd cookiecutter_remix
-npm install
+npx pnpm install
 npx playwright install --with-deps
+
+start_db
+start_http_server
 
 if [ "$1" == "unit" ]; then
     echo "Running unit tests"
-    npm run test:unit
+    npx pnpm run test:unit
 elif [ "$1" == "integration" ]; then
     echo "Running integration tests"
-    npm run test:integration
+    npx pnpm run test:integration
 else
     echo "Running e2e tests"
-    npm run dev &
-    npm run test:e2e
+    npx pnpm run test:e2e
 fi
 
