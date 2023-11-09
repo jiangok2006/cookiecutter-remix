@@ -10,6 +10,7 @@ export POSTGRES_PORT="54323"
 export POSTGRES_PASSWORD="postgres"
 export DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
 
+export HTTP_SERVER="http://localhost:3000"
 
 function start_db {
     docker-compose up -d
@@ -20,6 +21,7 @@ function start_db {
 
 function start_http_server {
     npx pnpm run dev &
+    $DIR/scripts/wait-for-it.sh "${HTTP_SERVER}" -- echo '🟢 - http server is ready!'
 }
 
 pip install cookiecutter
