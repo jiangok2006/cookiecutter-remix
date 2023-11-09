@@ -9,9 +9,9 @@
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
     "db:reset": "prisma migrate reset",
-    "test:e2e": "vitest -c ./vitest.config.e2e.ts",
-    "test:unit": "vitest -c ./vitest.config.unit.ts",
-    "test:integration": "vitest -c ./vitest.config.integration.ts"
+    "test:e2e": "vitest -c ./vitest.config.e2e.ts --coverage",
+    "test:unit": "vitest -c ./vitest.config.unit.ts --coverage",
+    "test:integration": "vitest -c ./vitest.config.integration.ts --coverage"
   },
   "dependencies": {
     "@prisma/client": "^5.5.2",
@@ -33,6 +33,7 @@
     "@types/react": "^18.2.36",
     "@types/react-dom": "^18.2.14",
     "@types/supertest": "^2.0.16",
+    "@vitest/coverage-v8": "^0.34.6",
     "@vitest/ui": "^0.34.6",
     "eslint": "^8.38.0",
     "express": "^4.18.2",
