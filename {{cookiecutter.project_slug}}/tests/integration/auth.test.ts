@@ -1,30 +1,25 @@
+import { httpUrl, newUser } from '@/tests/common/setup';
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
-import { httpUrl } from '../common/setup';
 
 describe('/user', async () => {
   describe('create a user', () => {
     it('should create a user', async () => {
-      const payload = {
-        name: 'test',
-        email: 'test@abc.com'
-      }
-
       let response = await request(httpUrl)
-        .post('/user').send(payload)
+        .post('/user').send(newUser)
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(200)
 
-      expect(response.body).toEqual(payload)
+      expect(response.body).toEqual(newUser)
 
-      response = await request(httpUrl).get('/user')
+      request(httpUrl).get('/user')
         .set('Accept', 'application/json')
         .expect('Content-Type', /json/)
         .expect(200)
-
-      expect(response.body).toEqual({ "status": 200, users: [payload] })
-
+        .end((err, res) => {
+          expect(res.body).toEqual({ "status": 200, users: [newUser] })
+        })
     })
   })
 })
