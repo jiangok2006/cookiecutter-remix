@@ -4,6 +4,8 @@ set -ex
 
 DIR=$(pwd) 
 
+ls
+
 export POSTGRES_HOST="localhost"
 export POSTGRES_DB="postgres"
 export POSTGRES_PORT="54323"
