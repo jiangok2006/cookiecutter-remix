@@ -9,7 +9,7 @@
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
     "db:reset": "prisma migrate reset",
-    "test:e2e": "playwright test",
+    "test:e2e": "vitest -c ./vitest.config.e2e.ts",
     "test:unit": "vitest -c ./vitest.config.unit.ts",
     "test:integration": "vitest -c ./vitest.config.integration.ts"
   },
