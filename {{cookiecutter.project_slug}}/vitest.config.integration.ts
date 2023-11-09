@@ -6,7 +6,10 @@ export default defineConfig({
     include: ['tests/integration/**/*.test.ts'],
     threads: false,
     setupFiles: ['tests/common/setup.ts'],
-    testTimeout: 10000
+    testTimeout: 10000,
+    coverage: {
+      reporter: ['text', 'json-summary', 'json'],
+    }
   },
   resolve: {
     alias: [{ find: "@", replacement: resolve(__dirname, ".") }]

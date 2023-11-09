@@ -23,3 +23,6 @@ jobs:
       - name: test
         run: scripts/test.sh e2e
   
+      - name: Vitest Coverage Report
+        uses: davelosert/vitest-coverage-report-action@v2.1.1
+    
