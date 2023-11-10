@@ -3,11 +3,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    include: ['tests/unit/**/*.test.ts'],
-    // DO NOT use tests/common/setup.ts which reset db. unit test uses mock db.
-    coverage: {
-      reporter: ['text', 'json-summary', 'json'],
-    }
+    include: ['tests/monitoring/**/*.spec.ts'],
+    // DO NOT use tests/common/setup.ts which reset db!!!
   },
   resolve: {
     alias: [{ find: "@", replacement: resolve(__dirname, ".") }]

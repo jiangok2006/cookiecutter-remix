@@ -9,8 +9,7 @@ export POSTGRES_DB="postgres"
 export POSTGRES_PORT="54323"
 export POSTGRES_PASSWORD="postgres"
 export DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-
-export HTTP_SERVER="http://localhost:3000"
+export APP_HTTP_URL="http://localhost:3000"
 
 function start_db {
     docker-compose up -d
@@ -21,7 +20,7 @@ function start_db {
 
 function start_http_server {
     npx pnpm run dev &
-    $DIR/scripts/wait-for-it.sh "${HTTP_SERVER}" -- echo '🟢 - http server is ready!'
+    $DIR/scripts/wait-for-it.sh "${APP_HTTP_URL}" -- echo '🟢 - http server is ready!'
 }
 
 pip install cookiecutter
@@ -33,14 +32,6 @@ npx playwright install --with-deps
 start_db
 start_http_server
 
-if [ "$1" == "unit" ]; then
-    echo "Running unit tests"
-    npx pnpm run test:unit
-elif [ "$1" == "integration" ]; then
-    echo "Running integration tests"
-    npx pnpm run test:integration
-else
-    echo "Running e2e tests"
-    npx pnpm run test:e2e
-fi
+echo "Running $1 tests"
+npx pnpm run test:$1
 

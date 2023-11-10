@@ -1,0 +1,27 @@
+name: 'monitoring'
+
+on:
+  workflow_dispatch:
+  schedule: # hourly
+    - cron: 0 * * * *
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: '${{ github.workflow }}'
+  cancel-in-progress: true
+
+jobs:
+  test_matrix:
+    strategy:
+      matrix:
+        flavor: [staging]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: test
+        run: scripts/test.sh ${{matrix.flavor}}
