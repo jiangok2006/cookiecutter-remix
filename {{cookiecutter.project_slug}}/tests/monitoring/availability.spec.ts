@@ -3,8 +3,6 @@ import { afterAll, beforeAll, describe, expect, test } from "vitest";
 import { httpUrl } from "../common/setup";
 
 
-const stageHttpUrl = "https://head.cookiecutter-remix.pages.dev/"
-
 describe("playwright meets vitest", () => {
     let page: Page;
     let browser: Browser;
