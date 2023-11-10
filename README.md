@@ -1,7 +1,3 @@
-![unit test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_unit_test.yml/badge.svg)
-![integration test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_integration_test.yml/badge.svg)
-![e2e test](https://github.com/jiangok2006/cookiecutter-remix/actions/workflows/main_e2e_test.yml/badge.svg)
-
 # Introduction
 
 This cookiecutter is to address setup pain points with opinionated tooling choices: remix, typescript, vitest, github action, playwright, supabase, cloudflare, tailwind.
