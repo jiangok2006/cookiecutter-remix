@@ -6,4 +6,9 @@ DIR=$(pwd)
 
 
 echo "deploy to cloudflare $1 ..."
-npm run pages:deploy
+
+pip install cookiecutter
+cookiecutter --no-input .
+cd cookiecutter_remix
+npx pnpm install
+npx pnpm run pages:deploy
