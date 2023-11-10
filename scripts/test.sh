@@ -9,8 +9,7 @@ export POSTGRES_DB="postgres"
 export POSTGRES_PORT="54323"
 export POSTGRES_PASSWORD="postgres"
 export DATABASE_URL="postgres://postgres:postgres@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
-
-export HTTP_SERVER="http://localhost:3000"
+export APP_HTTP_URL="http://localhost:3000"
 
 function start_db {
     docker-compose up -d
