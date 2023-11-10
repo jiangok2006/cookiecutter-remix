@@ -1,5 +1,5 @@
-import { Browser, Page, chromium } from "@playwright/test";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { Browser, Page, chromium, expect } from "@playwright/test";
+import { afterAll, beforeAll, describe, test } from "vitest";
 import { httpUrl } from '../common/setup';
 
 
@@ -16,8 +16,8 @@ describe("playwright meets vitest", () => {
     await browser.close();
   });
 
-  test('The page should show remix contacts', async () => {
+  test('The page should show remix string', async () => {
     await page.goto(httpUrl!);
-    await expect(page.getByRole('heading', { name: 'Welcome to Remix' })).toBeDefined();
+    await expect(page.getByText('Welcome to Remix', { exact: true })).toBeDefined()
   });
 })

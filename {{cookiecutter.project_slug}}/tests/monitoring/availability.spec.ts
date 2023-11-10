@@ -1,12 +1,14 @@
-import { Browser, Page, chromium } from "@playwright/test";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
-import { httpUrl } from "../common/setup";
+import { Browser, Page, chromium, expect, test } from "@playwright/test";
+import { afterAll, beforeAll, describe } from "vitest";
 
+
+const httpUrl = process.env.APP_HTTP_URL
 
 describe("playwright meets vitest", () => {
     let page: Page;
     let browser: Browser;
     beforeAll(async () => {
+        console.log(`httpUrl: ${httpUrl}`)
         browser = await chromium.launch();
         let context = await browser.newContext();
         page = await context.newPage();
@@ -16,8 +18,8 @@ describe("playwright meets vitest", () => {
         await browser.close();
     });
 
-    test('The page should show remix contacts', async () => {
+    test('The page should show remix string', async () => {
         await page.goto(httpUrl!);
-        await expect(page.getByRole('heading', { name: 'Welcome to Remix' })).toBeDefined();
+        await expect(page.getByText('Welcome to Remix', { exact: true })).toBeDefined()
     });
 })
