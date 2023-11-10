@@ -1,5 +1,5 @@
 import prisma from '@/app/libs/prisma'
-import { beforeEach } from 'vitest'
+import { beforeAll, beforeEach } from 'vitest'
 
 export const httpUrl = process.env.APP_HTTP_URL
 
@@ -16,6 +16,10 @@ async function resetDb() {
     prisma.post.deleteMany(),
   ])
 }
+
+beforeAll(() => {
+  console.log(`httpUrl: ${httpUrl}`)
+})
 
 beforeEach(async () => {
   await resetDb()
