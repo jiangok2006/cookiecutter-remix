@@ -6,5 +6,6 @@ DIR=$(pwd)
 
 
 echo "deploy to cloudflare $1 ..."
+npx pnpm setup
 npx pnpm add -g pnpm
 npx pnpm run pages:deploy
