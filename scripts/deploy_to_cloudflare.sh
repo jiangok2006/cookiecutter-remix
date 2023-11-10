@@ -6,4 +6,4 @@ DIR=$(pwd)
 
 
 echo "deploy to cloudflare $1 ..."
-npx pnpm run test:integration
+npx pnpm run pages:deploy
