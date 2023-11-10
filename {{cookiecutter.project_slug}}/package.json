@@ -8,7 +8,7 @@
     "dev": "remix dev -c \"node server.mjs\"",
     "start": "remix-serve ./build/index.js",
     "typecheck": "tsc",
-    "db:reset": "prisma migrate reset",
+    "db:reset": "prisma db push --force-reset && prisma db seed",
     "test:e2e": "vitest -c ./vitest.config.e2e.ts --coverage",
     "test:unit": "vitest -c ./vitest.config.unit.ts --coverage",
     "test:integration": "vitest -c ./vitest.config.integration.ts --coverage",
