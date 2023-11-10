@@ -1,4 +1,4 @@
-name: 'e2e test'
+name: 'main_cicd'
 
 on:
   workflow_dispatch:
@@ -14,19 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  test_matrix:
+    strategy:
+      matrix:
+        flavor: [unit, integration, e2e]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: test
-        run: scripts/test.sh e2e
-  
+        run: scripts/test.sh ${{matrix.flavor}}
+
       - name: Vitest Coverage Report
         uses: davelosert/vitest-coverage-report-action@v2.1.1
         with:
-          name: 'e2e test'
+          name: '${{matrix.flavor}} test'
           json-summary-path: './cookiecutter_remix/coverage/coverage-summary.json'
-
-    
