@@ -39,12 +39,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: deploy_supabase
-        run: scripts/deploy_to_supabase.sh staging
+      - name: deploy
+        run: scripts/deploy.sh staging
         env:
           DATABASE_URL: ${{ secrets.COOKIECUTTER_REMIX_STAGING_DATABASE_URL }}
-
-      - name: deploy_cloudflare
-        run: scripts/deploy_to_cloudflare.sh staging
-        env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
