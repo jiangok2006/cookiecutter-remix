@@ -20,7 +20,7 @@ function start_db {
 
 function start_http_server {
     npx pnpm run dev &
-    $DIR/scripts/wait-for-it.sh "${HTTP_SERVER}" -- echo '🟢 - http server is ready!'
+    $DIR/scripts/wait-for-it.sh "${APP_HTTP_URL}" -- echo '🟢 - http server is ready!'
 }
 
 pip install cookiecutter
