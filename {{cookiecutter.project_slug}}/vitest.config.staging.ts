@@ -3,11 +3,8 @@ import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   test: {
-    include: ['tests/e2e/**/*.spec.ts'],
-    setupFiles: ['tests/common/setup.ts'],
-    coverage: {
-      reporter: ['text', 'json-summary', 'json'],
-    }
+    include: ['tests/monitoring/**/*.spec.ts'],
+    // DO NOT use tests/common/setup.ts which reset db!!!
   },
   resolve: {
     alias: [{ find: "@", replacement: resolve(__dirname, ".") }]

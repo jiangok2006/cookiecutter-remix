@@ -1,7 +1,7 @@
 import prisma from '@/app/libs/prisma'
 import { beforeEach } from 'vitest'
 
-export const httpUrl = "http://localhost:3000"
+export const httpUrl = process.env.APP_HTTP_URL
 
 export const newUser = {
   name: 'test',

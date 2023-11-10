@@ -33,14 +33,6 @@ npx playwright install --with-deps
 start_db
 start_http_server
 
-if [ "$1" == "unit" ]; then
-    echo "Running unit tests"
-    npx pnpm run test:unit
-elif [ "$1" == "integration" ]; then
-    echo "Running integration tests"
-    npx pnpm run test:integration
-else
-    echo "Running e2e tests"
-    npx pnpm run test:e2e
-fi
+echo "Running $1 tests"
+npx pnpm run test:$1
 

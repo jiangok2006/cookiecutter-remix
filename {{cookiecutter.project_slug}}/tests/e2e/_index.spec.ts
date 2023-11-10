@@ -17,7 +17,7 @@ describe("playwright meets vitest", () => {
   });
 
   test('The page should show remix contacts', async () => {
-    await page.goto(httpUrl);
+    await page.goto(httpUrl!);
     await expect(page.getByRole('heading', { name: 'Welcome to Remix' })).toBeDefined();
   });
 })
