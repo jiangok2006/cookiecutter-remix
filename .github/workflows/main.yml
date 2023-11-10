@@ -41,6 +41,8 @@ jobs:
 
       - name: deploy_supabase
         run: scripts/deploy_to_supabase.sh staging
+        env:
+          DATABASE_URL: ${{ secrets.COOKIECUTTER_REMIX_STAGING_DATABASE_URL }}
 
       - name: deploy_cloudflare
         run: scripts/deploy_to_cloudflare.sh staging
