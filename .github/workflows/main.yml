@@ -32,28 +32,15 @@ jobs:
           name: '${{matrix.flavor}} test'
           json-summary-path: './cookiecutter_remix/coverage/coverage-summary.json'
 
-  deploy_to_supabase:
+  deploy_staging:
     runs-on: ubuntu-latest
     needs: test_matrix
-    strategy:
-      matrix:
-        flavor: [staging]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: deploy
-        run: scripts/deploy_to_supabase.sh ${{matrix.flavor}}
+      - name: deploy_supabase
+        run: scripts/deploy_to_supabase.sh staging
 
-  deploy_to_cloudflare:
-    runs-on: ubuntu-latest
-    needs: deploy_to_supabase
-    strategy:
-      matrix:
-        flavor: [staging]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: deploy
-        run: scripts/deploy_to_cloudflare.sh ${{matrix.flavor}}
+      - name: deploy_cloudflare
+        run: scripts/deploy_to_cloudflare.sh staging
