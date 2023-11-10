@@ -23,5 +23,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: test
-        run: scripts/test.sh ${{matrix.flavor}}
+      - name: monitoring
+        run: scripts/monitoring.sh ${{matrix.flavor}}
