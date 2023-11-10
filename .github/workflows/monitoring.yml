@@ -25,3 +25,5 @@ jobs:
 
       - name: monitoring
         run: scripts/monitoring.sh ${{matrix.flavor}}
+        env:
+            APP_HTTP_URL: ${{ vars.STAGING_APP_HTTP_URL }}
