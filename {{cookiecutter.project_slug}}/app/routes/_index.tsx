@@ -1,4 +1,5 @@
 import type { LinksFunction, MetaFunction } from "@remix-run/cloudflare";
+//import type { LinksFunction } from "@remix-run/node";
 
 
 import stylesheet from "@/app/tailwind.css";
