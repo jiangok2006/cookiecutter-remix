@@ -13,7 +13,7 @@
     "test:staging": "vitest -c ./vitest.config.staging.ts",
     "test:unit": "pnpm run build & vitest -c ./vitest.config.unit.ts --coverage",
     "test:integration": "vitest -c ./vitest.config.integration.ts --coverage",
-    "pages:deploy:staging": "pnpm run build && wrangler pages deploy ./public --env=staging --d1=DB"
+    "pages:deploy": "pnpm run build && wrangler pages deploy ./public"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^2.2.0",
