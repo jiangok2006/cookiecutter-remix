@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "remix dev --manual -c \"npm run start\"",
+    "dev": "pnpm run build & npx wrangler pages dev ./public",
     "start": "wrangler pages dev --compatibility-date=2023-06-21 ./public",
     "typecheck": "tsc",
     "db:reset": "prisma db push --force-reset && prisma db seed",
@@ -13,7 +13,6 @@
     "test:staging": "vitest -c ./vitest.config.staging.ts",
     "test:unit": "pnpm run build & vitest -c ./vitest.config.unit.ts --coverage",
     "test:integration": "vitest -c ./vitest.config.integration.ts --coverage",
-    "pages:deploy:local": "pnpm run build & npx wrangler pages dev ./public",
     "pages:deploy:staging": "pnpm run build && wrangler pages deploy ./public --env=staging --d1=DB"
   },
   "dependencies": {
