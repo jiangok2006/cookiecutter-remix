@@ -10,3 +10,4 @@ alias prisma_reset="npx prisma migrate reset"
 function prepare_push {
     mv $ROOT/my $ROOT/{{cookiecutter.project_slug}}
 }
+

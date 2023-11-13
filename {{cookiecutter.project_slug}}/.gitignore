@@ -16,6 +16,8 @@
 /playwright/.cache/
 /coverage
 /prisma/migration
+/.wrangler
+
 
 .env.*
 *.db

@@ -36,3 +36,11 @@ Make sure to deploy the output of `remix build`
 
 - `build/`
 - `public/build/`
+
+
+### Wrangler
+
+init staging D1
+```
+npx wrangler d1 execute cookiecutter-remix-d1-staging --file=./d1/schema.sql                 
+```

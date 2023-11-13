@@ -1,4 +1,3 @@
-import prisma from '@/app/libs/prisma'
 import { beforeAll, beforeEach } from 'vitest'
 
 export const httpUrl = process.env.APP_HTTP_URL
@@ -11,10 +10,7 @@ export const newUser = {
 
 async function resetDb() {
   console.log('resetDb...')
-  prisma.$transaction([
-    prisma.user.deleteMany(),
-    prisma.post.deleteMany(),
-  ])
+
 }
 
 beforeAll(() => {
