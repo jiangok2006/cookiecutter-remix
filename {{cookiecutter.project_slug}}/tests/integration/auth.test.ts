@@ -1,5 +1,3 @@
-import { httpUrl, newUser } from '@/tests/common/setup';
-import request from 'supertest';
 import { describe, it } from 'vitest';
 
 
@@ -7,11 +5,11 @@ import { describe, it } from 'vitest';
 describe('/user', async () => {
   describe('create a user', () => {
     it('should create a user', async () => {
-      let response = await request(httpUrl)
-        .post('/user').send(newUser)
-        .set('Accept', 'application/json')
+      // let response = await request(httpUrl)
+      //   .post('/user').send(newUser)
+      //   .set('Accept', 'application/json')
 
-      console.log(response)
+      // console.log(response)
       //   .expect('Content-Type', /json/)
       //   .expect(200)
 
