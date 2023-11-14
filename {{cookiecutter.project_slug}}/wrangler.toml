@@ -3,14 +3,9 @@ main = "app/routes/_index.ts"
 compatibility_date = "2022-11-07"
 node_compat = true
 
-[[ d1_databases ]]
+[[d1_databases]]
 binding = "DB"
-database_name = "cookiecutter-remix-d1-dev"
-database_id = "27b47ce4-03b7-4701-938b-4d132ae1dc8e"
-
-[env.staging]
-d1_databases = [
-    { binding = "DB", database_name = "cookiecutter-remix-d1-staging", database_id = "06c8a697-4de0-4b7e-a673-3d41ab7c29fd" },
-]
+database_name = "test1"
+database_id = "024791a8-1a7f-4ac6-ab8d-ce81ec4c5ac6"
 
 

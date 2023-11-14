@@ -38,9 +38,40 @@ Make sure to deploy the output of `remix build`
 - `public/build/`
 
 
-### Wrangler
+### Wrangler and Drizzle
+export DATABASE_NAME=test1
+translate drizzle orm (*.ts) to sql (*.sql)
+```
+npx drizzle-kit generate:sqlite
+```
 
-init staging D1
+show migrations not applied on local db
 ```
-npx wrangler d1 execute cookiecutter-remix-d1-staging --file=./d1/schema.sql                 
+npx wrangler d1 migrations list $DATABASE_NAME --local
 ```
+
+apply migrations (aka create tables) in local db
+```
+npx wrangler d1 migrations apply $DATABASE_NAME  --local
+```
+
+NOT NEED to do this to create tables
+```
+wrangler d1 execute $DATABASE_NAME --file=./migrations/0000_purple_leper_queen.sql --local
+```
+
+insert seed data in local db.
+```
+wrangler d1 execute $DATABASE_NAME  --file=./seed.sql --local 
+```
+
+run CF pages locally
+```
+npx wrangler pages dev --local --persist --d1=DB
+```
+
+drizzle studio does not work for local db. It is not very useful given d1 has console.
+```
+npx drizzle-kit studio
+```
+

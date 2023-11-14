@@ -2,7 +2,8 @@ import type { LoaderFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { drizzle } from 'drizzle-orm/d1';
-import { Env, customers } from "../libs/orm";
+import { customers } from "../../schema/customers";
+import { Env } from "../libs/orm";
 
 
 export const loader: LoaderFunction = async ({ context, params }) => {
