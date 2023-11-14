@@ -31,6 +31,7 @@
     "@playwright/test": "^1.39.0",
     "@remix-run/dev": "^2.2.0",
     "@remix-run/eslint-config": "^2.2.0",
+    "@types/better-sqlite3": "^7.6.7",
     "@types/react": "^18.2.36",
     "@types/react-dom": "^18.2.14",
     "@types/supertest": "^2.0.16",

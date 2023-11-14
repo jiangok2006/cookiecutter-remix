@@ -70,8 +70,18 @@ run CF pages locally
 npx wrangler pages dev --local --persist --d1=DB
 ```
 
-drizzle studio does not work for local db. It is not very useful given d1 has console.
+drizzle studio (remote only). d1 already has console.
 ```
 npx drizzle-kit studio
+```
+
+time-travel to a timestamp (remote only)
+```
+ npx wrangler d1 time-travel  restore test1 --timestamp 2023-11-14T10:43:31.000Z  
+```
+
+time-travel to an auto generated bookmark (remote only).
+```
+npx wrangler d1 time-travel  restore test1 --bookmark 0000000a-ffffffff-00004cdb-d8b886070a5354e08862b6b5e0c9587b
 ```
 
