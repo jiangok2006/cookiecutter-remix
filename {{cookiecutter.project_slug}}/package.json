@@ -37,6 +37,7 @@
     "@vitest/coverage-v8": "^0.34.6",
     "@vitest/ui": "^0.34.6",
     "better-sqlite3": "^9.1.1",
+    "dotenv": "^16.3.1",
     "drizzle-kit": "^0.20.1",
     "eslint": "^8.38.0",
     "miniflare": "^3.20231025.1",

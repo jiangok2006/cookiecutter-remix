@@ -1,0 +1,1 @@
+INSERT INTO Customers (id) VALUES (1);
