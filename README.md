@@ -1,6 +1,6 @@
 # Introduction
 
-This cookiecutter is to address setup pain points with opinionated tooling choices: remix, typescript, vitest, github action, playwright, supabase, cloudflare, tailwind.
+This cookiecutter is to address setup pain points with opinionated tooling choices: remix, cloudflare page and D1, drizzle orm, tailwind, vitest, github action, playwright.
 
 # Install
 
