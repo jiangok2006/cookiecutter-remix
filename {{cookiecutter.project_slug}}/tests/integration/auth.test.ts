@@ -10,8 +10,6 @@ describe('/customer', async () => {
       const newCustomer = {
         id: uuidv4()
       }
-      console.log(newCustomer)
-
       await request(httpUrl)
         .post('/customer').send(newCustomer)
         .set('Accept', 'application/json')

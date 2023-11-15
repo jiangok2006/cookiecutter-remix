@@ -5,7 +5,6 @@ import { getDb } from "../libs/orm";
 
 export const loader: LoaderFunction = async ({ context, params }) => {
     if (!params.id) throw new Response("", { status: 404 });
-    console.log(params.id);
     const data = getDb(context).select().from(customers).where(eq(customers.id, params.id))
     return data;
 };
