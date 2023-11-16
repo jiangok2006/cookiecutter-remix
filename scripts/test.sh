@@ -5,7 +5,8 @@ set -ex
 
 DIR=$(pwd) 
 
-export APP_HTTP_URL="http://localhost:8788"
+export APP_HOST_PORT="localhost:8788"
+export APP_HTTP_URL="http://${APP_HOST_PORT}"
 export D1DATABASE="test1"
 
 function setup_db {
@@ -15,7 +16,7 @@ function setup_db {
 
 function start_http_server {
     npx pnpm run dev &
-    $DIR/scripts/wait-for-it.sh "${APP_HTTP_URL}" -- echo '🟢 - http server is ready!'
+    $DIR/scripts/wait-for-it.sh "${APP_HOST_PORT}" -- echo '🟢 - http server is ready!'
 }
 
 pip install cookiecutter
