@@ -1,1 +1,1 @@
-INSERT INTO Customers (id) VALUES (1);
+INSERT INTO Customers (id) VALUES ("seed");

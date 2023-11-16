@@ -7,7 +7,6 @@
     "build": "remix build",
     "dev": "pnpm run build & npx wrangler pages dev ./public --compatibility-date=2023-11-15 --d1=DB",
     "typecheck": "tsc",
-    "db:reset": "prisma db push --force-reset && prisma db seed",
     "test:e2e": "vitest -c ./vitest.config.e2e.ts --coverage",
     "test:staging": "vitest -c ./vitest.config.staging.ts",
     "test:unit": "pnpm run build & vitest -c ./vitest.config.unit.ts --coverage",
