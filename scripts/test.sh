@@ -25,6 +25,8 @@ cd cookiecutter_remix
 npx pnpm install
 npx playwright install --with-deps
 
+curl --version
+
 setup_db
 start_http_server
 
