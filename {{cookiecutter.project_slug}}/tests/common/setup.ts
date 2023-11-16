@@ -2,7 +2,7 @@
 // import { TestContext, beforeEach } from 'vitest';
 
 export const httpUrl = process.env.APP_HTTP_URL
-
+console.log(`httpUrl: ${httpUrl}`)
 
 
 // export interface MyTestContext extends TestContext {
