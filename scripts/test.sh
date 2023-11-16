@@ -25,10 +25,12 @@ cd cookiecutter_remix
 npx pnpm install
 npx playwright install --with-deps
 
-curl --version
-
 setup_db
 start_http_server
+
+test_customer="test"
+curl -X POST "${APP_HTTP_URL}/customer" -d "id=${test_customer}"
+curl "${APP_HTTP_URL}/customer/${test_customer}"
 
 echo "Running $1 tests"
 npx pnpm run test:$1
