@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "wrangler pages dev ./public",
+    "dev": "wrangler pages dev ./public -e staging --d1 DB",
     "typecheck": "tsc",
     "test:e2e": "vitest -c ./vitest.config.e2e.ts --coverage",
     "test:staging": "vitest -c ./vitest.config.staging.ts",
