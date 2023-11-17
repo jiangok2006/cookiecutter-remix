@@ -5,13 +5,13 @@
   "type": "module",
   "scripts": {
     "build": "remix build",
-    "dev": "pnpm run build & npx wrangler pages dev ./public --compatibility-date=2023-11-15 --d1=DB",
+    "dev": "wrangler pages dev ./public",
     "typecheck": "tsc",
     "test:e2e": "vitest -c ./vitest.config.e2e.ts --coverage",
     "test:staging": "vitest -c ./vitest.config.staging.ts",
-    "test:unit": "pnpm run build & vitest -c ./vitest.config.unit.ts --coverage",
+    "test:unit": "vitest -c ./vitest.config.unit.ts --coverage",
     "test:integration": "vitest -c ./vitest.config.integration.ts --coverage",
-    "pages:deploy": "pnpm run build && wrangler pages deploy ./public"
+    "pages:deploy": "wrangler pages deploy ./public"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^2.2.0",

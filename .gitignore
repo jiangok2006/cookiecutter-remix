@@ -6,3 +6,4 @@ node_modules/
 
 my/
 .databricks/
+results.sarif
