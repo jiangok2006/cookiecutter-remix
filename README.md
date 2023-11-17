@@ -1,6 +1,6 @@
 # Introduction
 
-This cookiecutter is to address setup pain points with opinionated tooling choices: remix, typescript, vitest, github action, playwright, supabase, cloudflare, tailwind.
+This cookiecutter is to address setup pain points with opinionated tooling choices: remix, cloudflare page and D1, drizzle orm, tailwind, vitest, github action, playwright.
 
 # Install
 
@@ -23,3 +23,10 @@ working on it and restore after test pass.
 [remix and typescript project](https://coderpad.io/blog/development/how-to-build-a-web-application-with-typescript-and-remix/)
 
 [prisma integration test](https://www.prisma.io/blog/testing-series-3-aBUyF8nxAn)
+
+
+# act
+run github action local for job test_matrix
+```
+ act pull_request -W '.github/workflows/main.yml' --job test_matrix
+```

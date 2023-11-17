@@ -1,29 +1,27 @@
-import { describe, it } from 'vitest';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import { describe, expect, it } from 'vitest';
+import { httpUrl } from '../common/setup';
 
+describe('/customer', async () => {
+  describe('create a customer', () => {
+    it('should create a customer', async () => {
 
+      const newCustomer = {
+        id: uuidv4()
+      }
+      await request(httpUrl)
+        .post('/customer').send(newCustomer)
+        .set('Accept', 'application/json')
+        .expect(200)
 
-describe('/user', async () => {
-  describe('create a user', () => {
-    it('should create a user', async () => {
-      // let response = await request(httpUrl)
-      //   .post('/user').send(newUser)
-      //   .set('Accept', 'application/json')
-
-      // console.log(response)
-      //   .expect('Content-Type', /json/)
-      //   .expect(200)
-
-      // delete response.body.id
-      // expect(response.body).toEqual(newUser)
-
-      // request(httpUrl).get('/user')
-      //   .set('Accept', 'application/json')
-      //   .expect('Content-Type', /json/)
-      //   .expect(200)
-      //   .end((err, res) => {
-      //     delete res.body.users[0].id
-      //     expect(res.body).toEqual({ "status": 200, users: [newUser] })
-      //   })
+      await request(httpUrl).get(`/customer/${newCustomer.id}`)
+        .set('Accept', 'application/json')
+        .expect('Content-Type', /json/)
+        .expect(200)
+        .then((res) => {
+          expect(res.body[0].id).toStrictEqual(newCustomer.id)
+        })
     })
   })
 })
