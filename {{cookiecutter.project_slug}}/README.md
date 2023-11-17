@@ -50,24 +50,19 @@ show migrations not applied on local db
 npx wrangler d1 migrations list $DATABASE_NAME --local
 ```
 
-apply migrations (aka create tables) in local db
+apply migrations (aka create tables) in local db. DO NOT USE npx on MAC!
 ```
-npx wrangler d1 migrations apply $DATABASE_NAME  --local
-```
-
-NOT NEED to do this to create tables
-```
-wrangler d1 execute $DATABASE_NAME --file=./migrations/0000_purple_leper_queen.sql --local
+wrangler d1 migrations apply $DATABASE_NAME  --local
 ```
 
-insert seed data in local db.
+insert seed data in local db. DO NOT USE npx on MAC!
 ```
 wrangler d1 execute $DATABASE_NAME  --file=./seed.sql --local 
 ```
 
-run CF pages locally
+run CF pages locally. 
 ```
-npx wrangler pages dev --local --persist --d1=DB
+wrangler pages dev --local --persist --d1=DB
 ```
 
 drizzle studio (remote only). d1 already has console.
@@ -87,5 +82,5 @@ npx wrangler d1 time-travel  restore test1 --bookmark 0000000a-ffffffff-00004cdb
 
 check log
 ```
- wrangler pages deployment tail 96ae708f-2ba3-4a73-a396-57bd274c41f9                                  
+ npx wrangler pages deployment tail 96ae708f-2ba3-4a73-a396-57bd274c41f9                                  
 ```
