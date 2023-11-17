@@ -23,7 +23,8 @@ pip install cookiecutter
 cookiecutter --no-input .
 cd cookiecutter_remix
 npx pnpm install
-# npx playwright install --with-deps
+npx pnpm exec playwright install-deps
+npx playwright install
 npx pnpm run build
 setup_db
 start_http_server
