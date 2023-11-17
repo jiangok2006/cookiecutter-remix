@@ -1,0 +1,25 @@
+name: 'main_cicd'
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
+
+concurrency:
+  group: '${{ github.workflow }}'
+  cancel-in-progress: true
+
+jobs:
+  deploy_staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: deploy
+        run: scripts/deploy.sh "--branch main"
+        env:
+          DATABASE_URL: ${{ secrets.COOKIECUTTER_REMIX_STAGING_DATABASE_URL }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}

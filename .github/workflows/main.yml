@@ -40,7 +40,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: deploy
-        run: scripts/deploy.sh staging
+        run: scripts/deploy.sh
         env:
           DATABASE_URL: ${{ secrets.COOKIECUTTER_REMIX_STAGING_DATABASE_URL }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
