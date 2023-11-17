@@ -8,6 +8,6 @@ pip install cookiecutter
 cookiecutter --no-input .
 cd cookiecutter_remix
 npx pnpm install
+npx pnpm run build
 
-echo "deploy to cloudflare ..."
 npx pnpm run pages:deploy --project-name cookiecutter-remix

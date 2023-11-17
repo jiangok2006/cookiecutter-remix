@@ -85,3 +85,7 @@ time-travel to an auto generated bookmark (remote only).
 npx wrangler d1 time-travel  restore test1 --bookmark 0000000a-ffffffff-00004cdb-d8b886070a5354e08862b6b5e0c9587b
 ```
 
+check log
+```
+ wrangler pages deployment tail 96ae708f-2ba3-4a73-a396-57bd274c41f9                                  
+```
