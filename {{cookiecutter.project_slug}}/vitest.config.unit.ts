@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     include: ['tests/unit/**/*.test.ts'],
-    // DO NOT use tests/common/setup.ts which reset db. unit test uses mock db.
+    setupFiles: ['tests/common/setup.ts'],
     coverage: {
       reporter: ['text', 'json-summary', 'json'],
     }

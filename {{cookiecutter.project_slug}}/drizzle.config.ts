@@ -3,7 +3,7 @@ import type { Config } from "drizzle-kit";
 dotenv.config();
 
 export default {
-    schema: "./schema/*",
+    schema: "./app/schema/*",
     out: "./migrations",
     driver: 'd1',
 } satisfies Config;
