@@ -1,5 +1,6 @@
 .DS_Store
 .env
+.dev.vars
 .cache
 build/
 node_modules/

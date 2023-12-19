@@ -16,7 +16,7 @@ function recreate_db {
     rm -rf migrations
     rm -rf .wrangler/state/v3/d1
     npx drizzle-kit generate:sqlite
-    wrangler d1 migrations apply $DATABASE_NAME  --local
+    npx wrangler d1 migrations apply $DATABASE_NAME  --local
 }
 
 function watch_app {
