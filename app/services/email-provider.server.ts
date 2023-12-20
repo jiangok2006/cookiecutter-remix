@@ -33,5 +33,7 @@ export const sendEmail = async (
         }),
     });
 
-    console.log(`email-provider, sendEmail response: ${await response.text()}`);
+    if (!response.ok) {
+        throw new Error(`email-provider, sendEmail: ${response.status} ${await response.text()}`);
+    }
 }
