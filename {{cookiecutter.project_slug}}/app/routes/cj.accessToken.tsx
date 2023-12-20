@@ -1,19 +1,21 @@
-import { json, type LoaderFunction } from "@remix-run/cloudflare";
+import { json, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import type { Env } from "../libs/orm";
 
 // cloudfare page read env vars from .dev.vars
-export let loader: LoaderFunction = async ({ context }) => {
-  const cj_host = context.env.cj_host;
+export let loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) => {
+  let env = context.env as Env;
+  const cj_host = env.cj_host;
   if (cj_host === undefined) {
     return Promise.reject(new Error('cj_host is not defined!'));
   }
 
-  const cj_user_name = context.env.cj_user_name;
+  const cj_user_name = env.cj_user_name;
   if (cj_user_name === undefined) {
     return Promise.reject(new Error('cj_user_name is not defined!'));
   }
 
-  const cj_api_key = context.env.cj_api_key;
+  const cj_api_key = env.cj_api_key;
   if (cj_api_key === undefined) {
     return Promise.reject(new Error('cj_api_key is not defined!'));
   }

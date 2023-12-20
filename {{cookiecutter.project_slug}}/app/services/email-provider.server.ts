@@ -6,5 +6,32 @@ export const sendEmail = async (
     options: SendEmailOptions<User>,
     subject: string, body: string
 ) => {
+    console.log(`email-provider, sendEmail: ${JSON.stringify(options)}, ${subject}, ${body}`);
+    // https://blog.cloudflare.com/sending-email-from-workers-with-mailchannels
+    const response = await fetch('https://api.mailchannels.net/tx/v1/send', {
+        method: 'POST',
+        headers: {
+            'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+            personalizations: [
+                {
+                    to: [{ email: options.emailAddress, name: 'Test Recipient' }],
+                },
+            ],
+            from: {
+                email: 'support@mycoolapp.site',
+                name: 'mycoolapp',
+            },
+            subject: subject,
+            content: [
+                {
+                    type: 'text/plain',
+                    value: body,
+                },
+            ],
+        }),
+    });
 
+    console.log(`email-provider, sendEmail response: ${await response.text()}`);
 }

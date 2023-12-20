@@ -1,14 +1,12 @@
-import { json, type LoaderFunction } from "@remix-run/cloudflare";
+import { json, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import type { Env } from "../libs/orm";
 
 
-// interface Env {
-//     cj_host: String;
-//   }
 
-
-export let loader: LoaderFunction = async ({ context }) => {
-    const cj_host = context.env.cj_host;
+export let loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) => {
+    let env = context.env as Env;
+    const cj_host = env.cj_host;
     if (cj_host === undefined) {
         return Promise.reject(new Error('CJ_HOST is not defined!'));
     }

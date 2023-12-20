@@ -1,6 +1,6 @@
 
 import type { SessionIdStorageStrategy } from "@remix-run/cloudflare";
-import { createSessionStorage } from "@remix-run/cloudflare";
+import { createCookieSessionStorage, createSessionStorage } from "@remix-run/cloudflare";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { v4 as uuidv4 } from 'uuid';
@@ -16,25 +16,52 @@ export type SessionFlashData = {
     error: string;
 };
 
-export function createDatabaseSessionStorage<SessionData>(
-    db: D1Database
-) {
-    const strategy: SessionIdStorageStrategy =
+
+export let cookieSessionStorage = createCookieSessionStorage(
     {
+        // a Cookie from `createCookie` or the CookieOptions to create one
         cookie: {
             name: "__session",
-            domain: "127.0.0.1",
+
+            // all of these are optional
+            domain: "localhost",
+            // Expires can also be set (although maxAge overrides it when used in combination).
+            // Note that this method is NOT recommended as `new Date` creates only one date on each server deployment, not a dynamic date in the future!
+            //
+            // expires: new Date(Date.now() + 60_000),
             httpOnly: true,
-            maxAge: 3600,
+            maxAge: 60,
             path: "/",
             sameSite: "lax",
             secrets: ["s3cret1"],
             secure: true,
         },
+    }
+)
+
+
+
+export function createDatabaseSessionStorage(
+    db: D1Database,
+    cookie_secret: string,
+    domain: string
+) {
+    const strategy: SessionIdStorageStrategy =
+    {
+        cookie: {
+            name: "__session",
+            domain: domain,
+            httpOnly: true,
+            maxAge: 3600,
+            path: "/",
+            sameSite: "lax",
+            secrets: [cookie_secret],
+            secure: true,
+        },
         async createData(data, expires) {
             console.log(`data: ${JSON.stringify(data)}`);
-            if (!data.user.id)
-                throw new Error(`cannot get user from db!`)
+            if (!data || !data.user)
+                throw new Error(`no user from data!`)
             const session: InsertSession = {
                 uuid: uuidv4(),
                 user_id: data.user.id,
@@ -49,16 +76,17 @@ export function createDatabaseSessionStorage<SessionData>(
             const result = await drizzle(db)
                 .insert(sessions)
                 .values(session).returning()
-            console.log(`result: ${JSON.stringify(result)}`);
+            console.log(`createData result: ${JSON.stringify(result)}`);
             return result[0].uuid;
         },
 
         async readData(id) {
+            console.log(`readData: id: ${id}`);
             if (!id) {
                 return null;
             }
             const result = await drizzle(db).select({ data: sessions.data }).from(sessions).where(eq(sessions.uuid, id)).execute();
-            console.log(`result: ${JSON.stringify(result)}`);
+            console.log(`readData result: ${JSON.stringify(result)}`);
             return result[0].data as SessionData & { [x: `__flash_${string}__`]: any; }
         },
 
@@ -83,3 +111,5 @@ export function createDatabaseSessionStorage<SessionData>(
     }
     return createSessionStorage(strategy);
 }
+
+

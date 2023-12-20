@@ -9,7 +9,12 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
     // If the user is here, it's already authenticated, if not redirect them to
     // the login page.
-    let user = await auth(env.DB).isAuthenticated(request, { failureRedirect: '/login' })
+    let user = await auth(
+        env.DB,
+        env.magic_link_secret,
+        env.cookie_secret,
+        env.domain)
+        .isAuthenticated(request, { failureRedirect: '/login' })
     return json({ user })
 }
 
