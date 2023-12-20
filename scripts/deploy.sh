@@ -4,7 +4,6 @@ set -ex
 
 DIR=$(pwd) 
 
-cd my
 npx pnpm install
 npx pnpm run build
 
