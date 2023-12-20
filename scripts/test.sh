@@ -19,9 +19,7 @@ function start_http_server {
     $DIR/scripts/wait-for-it.sh "${APP_HOST_PORT}" -- echo '🟢 - http server is ready!'
 }
 
-pip install cookiecutter
-cookiecutter --no-input .
-cd cookiecutter_remix
+cd my
 npx pnpm install
 npx pnpm exec playwright install-deps
 npx playwright install

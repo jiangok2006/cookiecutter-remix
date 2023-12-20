@@ -4,9 +4,7 @@ set -ex
 
 DIR=$(pwd) 
 
-pip install cookiecutter
-cookiecutter --no-input .
-cd cookiecutter_remix
+cd my
 npx pnpm install
 npx pnpm run build
 
