@@ -7,7 +7,7 @@ import { cookieSessionStorage } from '~/services/session.server';
 import type { Env } from '../libs/orm';
 
 export let loader = async ({ request, context }: LoaderFunctionArgs) => {
-    console.log(`loader request: ${request.json()}, 
+    console.log(`login loader request: ${request.json()}, 
     cookie: ${request.headers.get('Cookie')},
     method: ${request.method}`)
 
@@ -18,10 +18,13 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
         env.cookie_secret,
         env.domain).isAuthenticated(request, { successRedirect: '/me' })
 
+    console.log(`login loader auth failed`)
+
     // let { getSession } = await createDatabaseSessionStorage(
     //     env.DB, env.cookie_secret, env.domain)
 
     let session = await cookieSessionStorage.getSession(request.headers.get('Cookie'))
+    console.log(`login loader session: ${JSON.stringify(session)}`)
     // This session key `auth:magiclink` is the default one used by the EmailLinkStrategy
     // you can customize it passing a `sessionMagicLinkKey` when creating an
     // instance.
@@ -37,7 +40,7 @@ export let action = async ({ context, request }: ActionFunctionArgs) => {
     // The success redirect is required in this action, this is where the user is
     // going to be redirected after the magic link is sent, note that here the
     // user is not yet authenticated, so you can't send it to a private page.
-    console.log(`action request: ${request}`)
+    console.log(`login action request: ${JSON.stringify(request)}`)
     console.log(`header: ${JSON.stringify(request.headers)},
         method: ${request.method}`)
     await auth(
@@ -51,14 +54,15 @@ export let action = async ({ context, request }: ActionFunctionArgs) => {
             // rendered.
             failureRedirect: '/login',
         })
+    console.log(`login action auth failed`)
 }
 
 // app/routes/login.tsx
 export default function Login() {
     let { magicLinkSent, magicLinkEmail } = useLoaderData<typeof loader>()
-
+    console.log(`login magicLinkSent: ${magicLinkSent}, magicLinkEmail: ${magicLinkEmail}`)
     return (
-        <Form action="/login" method="post" data-static-form-name="magic_link">
+        <Form action="/login" method="post">
             {magicLinkSent ? (
                 <p>
                     Successfully sent magic link{' '}
