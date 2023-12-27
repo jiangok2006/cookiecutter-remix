@@ -18,8 +18,6 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
         env.cookie_secret,
         env.domain).isAuthenticated(request, { successRedirect: '/me' })
 
-    console.log(`login loader auth failed`)
-
     // let { getSession } = await createDatabaseSessionStorage(
     //     env.DB, env.cookie_secret, env.domain)
 
