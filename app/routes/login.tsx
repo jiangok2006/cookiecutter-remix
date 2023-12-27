@@ -7,9 +7,7 @@ import { cookieSessionStorage } from '~/services/session.server';
 import type { Env } from '../libs/orm';
 
 export let loader = async ({ request, context }: LoaderFunctionArgs) => {
-    //console.log(`login loader request: ${request.json()}, 
-    //cookie: ${request.headers.get('Cookie')},
-    //method: ${request.method}`)
+    console.log(`login loader request: cookie: ${request.headers.get('Cookie')}`)
 
     let env = context.env as Env;
     await auth(
