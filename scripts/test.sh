@@ -9,7 +9,7 @@ export APP_HOST_PORT="127.0.0.1:8788"
 export APP_HTTP_URL="http://${APP_HOST_PORT}"
 export D1DATABASE="cookiecutter-remix-preview"
 
-function setup_db {
+function setup_db { 
     npx wrangler d1 migrations apply $D1DATABASE --local
     # npx wrangler d1 execute $D1DATABASE --file=./seed.sql --local
 }
