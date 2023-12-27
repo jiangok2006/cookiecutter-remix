@@ -30,7 +30,7 @@ jobs:
         uses: davelosert/vitest-coverage-report-action@v2.1.1
         with:
           name: '${{matrix.flavor}} test'
-          json-summary-path: './cookiecutter_remix/coverage/coverage-summary.json'
+          json-summary-path: './coverage/coverage-summary.json'
 
   deploy_staging:
     runs-on: ubuntu-latest
