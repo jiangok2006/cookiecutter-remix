@@ -26,11 +26,12 @@ export const auth = (
                 // you will receive the email address, form data and whether or not this is being called after clicking on magic link
                 // and you should return the user instance
                 async ({ email }: { email: string }) => {
-                    let user = await getUserByEmail(db, email)
-                    return user
+                    console.log(`verify callback: email: ${email}`);
+                    let user = await getUserByEmail(db, email);
+                    return user;
                 }
             )
-        )
+        );
     }
     return authenticator;
 }

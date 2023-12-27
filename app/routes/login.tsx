@@ -40,22 +40,50 @@ export let action = async ({ context, request }: ActionFunctionArgs) => {
     // The success redirect is required in this action, this is where the user is
     // going to be redirected after the magic link is sent, note that here the
     // user is not yet authenticated, so you can't send it to a private page.
-    console.log(`login action request: ${JSON.stringify(request)}`)
-    console.log(`header: ${JSON.stringify(request.headers)},
-        method: ${request.method}`)
-    await auth(
-        env.DB,
-        env.magic_link_secret,
-        env.cookie_secret,
-        env.domain)
-        .authenticate('email-link', request, {
-            successRedirect: '/login',
-            // If this is not set, any error will be throw and the ErrorBoundary will be
-            // rendered.
-            failureRedirect: '/login',
-        })
-    console.log(`login action auth failed`)
+    //console.log(`login action request.text: ${await request.text()}`)
+    console.log(`headers: `)
+
+    // note it is NOT (key, value)!!!
+    request.headers.forEach((value, key) => console.log(`${key} ==> ${value}`));
+
+    console.log(`env: DB: ${env.DB}, domain: ${env.domain}`)
+
+
+    // let formData = await request.formData();
+    // console.log(`formData: `)
+    // for (const pair of formData.entries()) {
+    //     console.log(`${pair[0]}, ${pair[1]}`);
+    // }
+
+    try {
+        await auth(
+            env.DB,
+            env.magic_link_secret,
+            env.cookie_secret,
+            env.domain)
+            .authenticate('email-link', request,
+                {
+                    successRedirect: '/login',
+                    // If this is not set, any error will be throw and the ErrorBoundary will be
+                    // rendered.
+                    failureRedirect: '/login',
+                }
+            )
+    } catch (e) {
+        console.error("auth failed:", e)
+    }
+
+    return null;
 }
+
+
+
+// why this is not working?
+// export const headers: HeadersFunction = ({
+//     actionHeaders,
+// }) => ({
+//     "host2222": "localhost",
+// });
 
 // app/routes/login.tsx
 export default function Login() {

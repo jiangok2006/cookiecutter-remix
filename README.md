@@ -96,3 +96,8 @@ check log
 ```
  npx wrangler pages deployment tail 96ae708f-2ba3-4a73-a396-57bd274c41f9                                  
 ```
+
+
+### Troubleshoot
+
+Logging [Request](https://developer.mozilla.org/en-US/docs/Web/API/Request) is tricky because "The request body functions can be run only once; subsequent calls will reject with TypeError showing that the body stream has already used."
