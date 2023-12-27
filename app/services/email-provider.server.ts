@@ -28,7 +28,7 @@ export const sendEmail = async (
             content: [
                 {
                     type: 'text/html',
-                    value: "<html><body><p>Hi there!</p><a href=\"https://www.bing.com\">Click here</a></body></html>",
+                    value: body,
                 },
             ],
         }),
