@@ -24,7 +24,7 @@ export let cookieSessionStorage = createCookieSessionStorage(
             name: "__session",
 
             // all of these are optional
-            domain: "cookiecutter-remix.pages.dev",
+            // domain: "cookiecutter-remix.pages.dev",
             // Expires can also be set (although maxAge overrides it when used in combination).
             // Note that this method is NOT recommended as `new Date` creates only one date on each server deployment, not a dynamic date in the future!
             //
