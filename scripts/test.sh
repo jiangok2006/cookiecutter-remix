@@ -10,8 +10,8 @@ export APP_HTTP_URL="http://${APP_HOST_PORT}"
 export D1DATABASE="test1"
 
 function setup_db {
-    npx wrangler d1 migrations apply $D1DATABASE -e staging --local
-    npx wrangler d1 execute $D1DATABASE --file=./seed.sql -e staging --local
+    npx wrangler d1 migrations apply $D1DATABASE --local
+    npx wrangler d1 execute $D1DATABASE --file=./seed.sql --local
 }
 
 function start_http_server {
