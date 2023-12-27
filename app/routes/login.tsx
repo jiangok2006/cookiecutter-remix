@@ -31,15 +31,6 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
 export let action = async ({ context, request }: ActionFunctionArgs) => {
     let env = context.env as Env;
 
-    let formData = await request.formData();
-    for (const pair of formData.entries()) {
-        console.log(`formData pair: ${pair[0]}, ${pair[1]}`);
-        let email = pair[1].toString()
-        if (env.user_white_list.indexOf(email) < 0) {
-            throw new Error(`email: ${email} is not in white list`)
-        }
-    }
-
     // The success redirect is required in this action, this is where the user is
     // going to be redirected after the magic link is sent, note that here the
     // user is not yet authenticated, so you can't send it to a private page.
@@ -57,15 +48,6 @@ export let action = async ({ context, request }: ActionFunctionArgs) => {
             }
         )
 }
-
-
-
-// why this is not working?
-// export const headers: HeadersFunction = ({
-//     actionHeaders,
-// }) => ({
-//     "host2222": "localhost",
-// });
 
 // app/routes/login.tsx
 export default function Login() {
