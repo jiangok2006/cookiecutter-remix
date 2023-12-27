@@ -12,7 +12,7 @@ function prepare_push {
 }
 
 function recreate_db {
-    DATABASE_NAME=test1
+    DATABASE_NAME=cookiecutter-remix-preview
     rm -rf migrations
     rm -rf .wrangler/state/v3/d1
     npx drizzle-kit generate:sqlite
