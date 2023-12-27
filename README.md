@@ -49,6 +49,7 @@ Make sure to deploy the output of `remix build`:
 - `build/`
 - `public/build/`
 
+
 ### Wrangler and Drizzle
 export DATABASE_NAME=test1
 translate drizzle orm (*.ts) to sql (*.sql)
