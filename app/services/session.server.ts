@@ -29,12 +29,12 @@ export let cookieSessionStorage = createCookieSessionStorage(
             // Note that this method is NOT recommended as `new Date` creates only one date on each server deployment, not a dynamic date in the future!
             //
             // expires: new Date(Date.now() + 60_000),
-            httpOnly: true,
-            maxAge: 60,
-            path: "/",
-            sameSite: "lax",
-            secrets: ["sjA#@227je"],
-            secure: true,
+            //httpOnly: true,
+            //maxAge: 60,
+            //path: "/",
+            //sameSite: "lax",
+            //secrets: ["sjA#@227je"],
+            //secure: true,
         },
     }
 )
