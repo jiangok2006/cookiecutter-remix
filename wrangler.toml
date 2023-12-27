@@ -11,4 +11,9 @@ database_name = "test1"
 database_id = "024791a8-1a7f-4ac6-ab8d-ce81ec4c5ac6"
 preview_database_id = "DB" 
 
+
 [env.staging]
+binding = "DB"
+database_name = "test1"
+database_id = "024791a8-1a7f-4ac6-ab8d-ce81ec4c5ac6"
+preview_database_id = "DB" 
