@@ -9,6 +9,7 @@ export interface Env {
     cj_api_key: string;
     cookie_secret: string;
     magic_link_secret: string;
+    user_white_list: string;
 }
 
 export function getDb(context: AppLoadContext) {
