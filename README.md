@@ -53,6 +53,7 @@ Make sure to deploy the output of `remix build`:
 export DATABASE_NAME=test1
 translate drizzle orm (*.ts) to sql (*.sql)
 ```
+
 npx drizzle-kit generate:sqlite
 ```
 
