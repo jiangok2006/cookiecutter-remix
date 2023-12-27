@@ -8,7 +8,6 @@ import { describe, it } from 'vitest';
 describe('/customer', async () => {
   describe('create a customer', () => {
     it('should create a customer', async () => {
-
       // const newCustomer = {
       //   id: uuidv4()
       // }
