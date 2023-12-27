@@ -16,29 +16,19 @@ export type SessionFlashData = {
     error: string;
 };
 
-
-export let cookieSessionStorage = createCookieSessionStorage(
-    {
-        // a Cookie from `createCookie` or the CookieOptions to create one
-        cookie: {
-            name: "__session",
-
-            // all of these are optional
-            // domain: "cookiecutter-remix.pages.dev",
-            // Expires can also be set (although maxAge overrides it when used in combination).
-            // Note that this method is NOT recommended as `new Date` creates only one date on each server deployment, not a dynamic date in the future!
-            //
-            // expires: new Date(Date.now() + 60_000),
-            //httpOnly: true,
-            //maxAge: 60,
-            //path: "/",
-            //sameSite: "lax",
-            //secrets: ["sjA#@227je"],
-            //secure: true,
-        },
-    }
-)
-
+export function createCookieSessionStorageWithVars(
+    cookie_secret: string
+) {
+    return createCookieSessionStorage(
+        {
+            // a Cookie from `createCookie` or the CookieOptions to create one
+            cookie: {
+                name: "__session",
+                secrets: [cookie_secret],
+                secure: true,
+            },
+        })
+}
 
 
 export function createDatabaseSessionStorage(

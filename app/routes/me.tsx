@@ -12,8 +12,7 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     let user = await auth(
         env.DB,
         env.magic_link_secret,
-        env.cookie_secret,
-        env.domain)
+        env.cookie_secret)
         .isAuthenticated(request, { failureRedirect: '/login' })
     return json({ user })
 }

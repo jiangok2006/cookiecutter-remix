@@ -3,7 +3,7 @@ import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/cloudfla
 import { json } from '@remix-run/cloudflare';
 import { Form, useLoaderData } from '@remix-run/react';
 import { auth } from '~/services/auth.server';
-import { cookieSessionStorage } from '~/services/session.server';
+import { createCookieSessionStorageWithVars } from '~/services/session.server';
 import type { Env } from '../libs/orm';
 
 export let loader = async ({ request, context }: LoaderFunctionArgs) => {
@@ -13,13 +13,11 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     await auth(
         env.DB,
         env.magic_link_secret,
-        env.cookie_secret,
-        env.domain).isAuthenticated(request, { successRedirect: '/me' })
+        env.cookie_secret).isAuthenticated(request, { successRedirect: '/me' })
 
-    // let { getSession } = await createDatabaseSessionStorage(
-    //     env.DB, env.cookie_secret, env.domain)
+    let session = await createCookieSessionStorageWithVars(env.cookie_secret)
+        .getSession(request.headers.get('Cookie'))
 
-    let session = await cookieSessionStorage.getSession(request.headers.get('Cookie'))
     console.log(`login loader session: ${JSON.stringify(session)}`)
     // This session key `auth:magiclink` is the default one used by the EmailLinkStrategy
     // you can customize it passing a `sessionMagicLinkKey` when creating an
@@ -37,25 +35,10 @@ export let action = async ({ context, request }: ActionFunctionArgs) => {
     // going to be redirected after the magic link is sent, note that here the
     // user is not yet authenticated, so you can't send it to a private page.
     //console.log(`login action request.text: ${await request.text()}`)
-    console.log(`headers: `)
-
-    // note it is NOT (key, value)!!!
-    request.headers.forEach((value, key) => console.log(`${key} ==> ${value}`));
-
-    console.log(`env: DB: ${env.DB}, domain: ${env.domain}`)
-
-
-    // let formData = await request.formData();
-    // console.log(`formData: `)
-    // for (const pair of formData.entries()) {
-    //     console.log(`${pair[0]}, ${pair[1]}`);
-    // }
-
     await auth(
         env.DB,
         env.magic_link_secret,
-        env.cookie_secret,
-        env.domain)
+        env.cookie_secret)
         .authenticate('email-link', request,
             {
                 successRedirect: '/login',
