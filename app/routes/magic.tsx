@@ -9,7 +9,7 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
         env.DB,
         env.magic_link_secret,
         env.cookie_secret,
-        env.domain).authenticate('email-link', request, {
+        env.domain).isAuthenticated(request, {
             // If the user was authenticated, we redirect them to their profile page
             // This redirect is optional, if not defined the user will be returned by
             // the `authenticate` function and you can render something on this page
