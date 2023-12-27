@@ -7,6 +7,6 @@ node_compat = true
 # CF page does not use wrangler.toml for D1. 
 [[d1_databases]]
 binding = "DB"
-database_name = "test1"
-database_id = "024791a8-1a7f-4ac6-ab8d-ce81ec4c5ac6"
+database_name = "cookiecutter-remix-staging"
+database_id = "e5528349-f963-4cff-981d-01fd71702d42"
 preview_database_id = "DB" 
