@@ -20,7 +20,7 @@ export const sendEmail = async (
                 },
             ],
             from: {
-                email: 'support@cookiecutter-remix.pages.dev',
+                email: 'support@mycoolapp.site',
                 name: 'mycoolapp',
             },
             subject: subject,
