@@ -55,25 +55,19 @@ export let action = async ({ context, request }: ActionFunctionArgs) => {
     //     console.log(`${pair[0]}, ${pair[1]}`);
     // }
 
-    try {
-        await auth(
-            env.DB,
-            env.magic_link_secret,
-            env.cookie_secret,
-            env.domain)
-            .authenticate('email-link', request,
-                {
-                    successRedirect: '/login',
-                    // If this is not set, any error will be throw and the ErrorBoundary will be
-                    // rendered.
-                    failureRedirect: '/login',
-                }
-            )
-    } catch (e) {
-        console.error("auth failed:", e)
-    }
-
-    return null;
+    await auth(
+        env.DB,
+        env.magic_link_secret,
+        env.cookie_secret,
+        env.domain)
+        .authenticate('email-link', request,
+            {
+                successRedirect: '/login',
+                // If this is not set, any error will be throw and the ErrorBoundary will be
+                // rendered.
+                failureRedirect: '/login',
+            }
+        )
 }
 
 
