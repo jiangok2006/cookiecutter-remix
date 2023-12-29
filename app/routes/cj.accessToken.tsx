@@ -1,43 +1,21 @@
-import { json, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import type { Env } from "../libs/orm";
+import { auth } from "../services/auth.server";
+import { getCJAccessToken } from "../services/cj";
+
 
 // cloudfare page read env vars from .dev.vars
-export let loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) => {
+export let loader: LoaderFunction = async ({ context, request }: LoaderFunctionArgs) => {
   let env = context.env as Env;
-  const cj_host = env.cj_host;
-  if (cj_host === undefined) {
-    return Promise.reject(new Error('cj_host is not defined!'));
-  }
+  await auth(
+    env.DB,
+    env.magic_link_secret,
+    env.cookie_secret)
+    .isAuthenticated(request, { failureRedirect: '/login' })
 
-  const cj_user_name = env.cj_user_name;
-  if (cj_user_name === undefined) {
-    return Promise.reject(new Error('cj_user_name is not defined!'));
-  }
-
-  const cj_api_key = env.cj_api_key;
-  if (cj_api_key === undefined) {
-    return Promise.reject(new Error('cj_api_key is not defined!'));
-  }
-
-  const response = await fetch(`${cj_host}v1/authentication/getAccessToken`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: cj_user_name,
-      password: cj_api_key
-    })
-  });
-
-  const data = await response.json();
-
-  if (response.ok) {
-    return json(data);
-  } else {
-    return Promise.reject(new Error((data as any).message));
-  }
+  return await getCJAccessToken(
+    env.DB, env.cj_host, env.cj_user_name, env.cj_api_key);
 };
 
 export default function Index() {

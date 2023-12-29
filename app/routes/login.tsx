@@ -10,15 +10,18 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     console.log(`login loader request: cookie: ${request.headers.get('Cookie')}`)
 
     let env = context.env as Env;
+    if (env.disable_auth)
+        return json({ magicLinkSent: false, magicLinkEmail: '' })
+
     await auth(
         env.DB,
         env.magic_link_secret,
-        env.cookie_secret).isAuthenticated(request, { successRedirect: '/me' })
+        env.cookie_secret)
+        .isAuthenticated(request, { successRedirect: '/me' })
 
     let session = await createCookieSessionStorageWithVars(env.cookie_secret)
         .getSession(request.headers.get('Cookie'))
 
-    console.log(`login loader session: ${JSON.stringify(session)}`)
     // This session key `auth:magiclink` is the default one used by the EmailLinkStrategy
     // you can customize it passing a `sessionMagicLinkKey` when creating an
     // instance.
@@ -28,8 +31,11 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     })
 }
 
-export let action = async ({ context, request }: ActionFunctionArgs) => {
+export let action = async ({ request, context }: ActionFunctionArgs) => {
     let env = context.env as Env;
+
+    if (env.disable_auth)
+        return json({})
 
     // The success redirect is required in this action, this is where the user is
     // going to be redirected after the magic link is sent, note that here the
