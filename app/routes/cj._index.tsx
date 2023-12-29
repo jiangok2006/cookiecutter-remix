@@ -1,27 +1,23 @@
-import { json, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import type { Env } from "../libs/orm";
+import { auth } from "../services/auth.server";
+import { getCJAccessToken } from "../services/cj";
 
 
 
-export let loader: LoaderFunction = async ({ context }: LoaderFunctionArgs) => {
+export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
-    const cj_host = env.cj_host;
-    if (cj_host === undefined) {
-        return Promise.reject(new Error('CJ_HOST is not defined!'));
+    if (!env.disable_auth) {
+        await auth(
+            env.DB,
+            env.magic_link_secret,
+            env.cookie_secret)
+            .isAuthenticated(request, { failureRedirect: '/login' })
     }
 
-    const response = await fetch(cj_host, {
-        method: 'GET',
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-        return json(data);
-    } else {
-        return Promise.reject(new Error((data as any).message));
-    }
+    let token = await getCJAccessToken(env.DB, env.cj_host, env.cj_user_name, env.cj_api_key)
+    return token;
 };
 
 export default function HelloCJ() {

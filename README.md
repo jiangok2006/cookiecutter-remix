@@ -51,7 +51,7 @@ Make sure to deploy the output of `remix build`:
 
 
 ### Wrangler and Drizzle
-export DATABASE_NAME=test1
+export DATABASE_NAME=cookiecutter-remix-preview
 translate drizzle orm (*.ts) to sql (*.sql)
 ```
 
