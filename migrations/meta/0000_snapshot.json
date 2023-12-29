@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "08e6277e-6a1b-4d0b-8096-d2130561912c",
+  "id": "466365dd-fdba-4e6e-9ac8-0fe602bf8459",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "cj_tokens": {
