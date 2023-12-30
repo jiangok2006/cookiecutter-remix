@@ -8,11 +8,13 @@ import { getCJAccessToken } from "../services/cj";
 // cloudfare page read env vars from .dev.vars
 export let loader: LoaderFunction = async ({ context, request }: LoaderFunctionArgs) => {
   let env = context.env as Env;
-  await auth(
-    env.DB,
-    env.magic_link_secret,
-    env.cookie_secret)
-    .isAuthenticated(request, { failureRedirect: '/login' })
+  if (!env.disable_auth) {
+    await auth(
+      env.DB,
+      env.magic_link_secret,
+      env.cookie_secret)
+      .isAuthenticated(request, { failureRedirect: '/login' })
+  }
 
   return await getCJAccessToken(
     env.DB, env.cj_host, env.cj_user_name, env.cj_api_key);
@@ -23,7 +25,7 @@ export default function Index() {
 
   return (
     <div>
-      <h1>Data from API:</h1>
+      <h1>Data from CJ token API:</h1>
       <pre>{JSON.stringify(data, null, 2)}</pre>
     </div>
   );
