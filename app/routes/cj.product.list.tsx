@@ -1,10 +1,9 @@
-import type { ActionFunctionArgs, LoaderFunction, LoaderFunctionArgs, Session } from "@remix-run/cloudflare";
+import { type ActionFunctionArgs, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { Form, useLoaderData } from "@remix-run/react";
 import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
 import { getCJAccessToken } from "../services/cj";
 
-import { createCookieSessionStorage } from "@remix-run/cloudflare";
 
 export type CJProductListAPIResponse = {
     code: number,
@@ -14,26 +13,9 @@ export type CJProductListAPIResponse = {
     }
 }
 
-type SessionData = {
-    categoryId?: string;
-}
-
-type SessionFlashData = {
-    categoryId: string;
-};
-
-
-const { getSession, commitSession } =
-    createCookieSessionStorage<SessionData, SessionFlashData>(
-        {
-            // a Cookie from `createCookie` or the CookieOptions to create one
-            cookie: {
-                name: "__session2",
-            },
-        }
-    );
-
-let session: Session<SessionData, SessionFlashData> | null = null;
+let formData: {
+    [k: string]: FormDataEntryValue;
+} | undefined = undefined;
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
@@ -45,15 +27,15 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             .isAuthenticated(request, { failureRedirect: '/login' })
     }
 
-    if (session != null) {
-        let catId = session.get("categoryId");
+    let catId = ""
+    if (formData != undefined) {
+        catId = `?categoryId=${formData.category_id}`
         console.log(`catId: ${catId}`)
-        await commitSession(session)
     }
 
     let token = await getCJAccessToken(env.DB, env.cj_host, env.cj_user_name, env.cj_api_key)
     console.log("loader called!");
-    let res = await fetch(`${env.cj_host}v1/product/list?categoryId=87CF251F-8D11-4DE0-A154-9694D9858EB3`, {
+    let res = await fetch(`${env.cj_host}v1/product/list${catId}`, {
         headers: {
             'Content-Type': 'application/json',
             'CJ-Access-Token': token,
@@ -82,11 +64,11 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
             )
     }
 
-    session = await getSession(
-        request.headers.get('Cookie')
-    );
-    session.flash('categoryId', "def");
-    await commitSession(session)
+    const rawFormData = await request.formData();
+    for (var key of rawFormData.keys()) {
+        console.log(`key: ${key}`);
+    }
+    formData = Object.fromEntries(rawFormData);
     return null;
 }
 
@@ -95,7 +77,7 @@ export default function ProductList() {
     let data = useLoaderData();
     return (
         <div>
-            <Form method="post" navigate={false}>
+            <Form method="post">
                 <div style={{ marginBottom: '1rem' }}>
                     <label htmlFor="category_id">Category ID:</label>
                     <input type="text" name="category_id" id="category_id" placeholder="category_id" />
@@ -128,7 +110,6 @@ export default function ProductList() {
             </Form>
             <div id="results">
                 filteredResults: {JSON.stringify(data, null, 2)}
-
             </div>
         </div>
     );
