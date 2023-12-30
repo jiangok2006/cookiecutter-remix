@@ -14,6 +14,7 @@ export type SessionData = {
 
 export type SessionFlashData = {
     error: string;
+    categoryId: string;
 };
 
 export function createCookieSessionStorageWithVars(
@@ -21,7 +22,6 @@ export function createCookieSessionStorageWithVars(
 ) {
     return createCookieSessionStorage(
         {
-            // a Cookie from `createCookie` or the CookieOptions to create one
             cookie: {
                 name: "__session",
                 secrets: [cookie_secret],
@@ -29,7 +29,6 @@ export function createCookieSessionStorageWithVars(
             },
         })
 }
-
 
 export function createDatabaseSessionStorage(
     db: D1Database,
