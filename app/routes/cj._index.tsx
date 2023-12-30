@@ -11,7 +11,6 @@ type CJSettingAPIResponse = {
     data: {
     }
 }
-
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
     if (!env.disable_auth) {
