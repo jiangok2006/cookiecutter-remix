@@ -4,7 +4,7 @@ import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
 import { getCJAccessToken } from "../services/cj";
 
-type CJSettingAPIResponse = {
+type CJCategoryAPIResponse = {
     code: number,
     message: string,
     success: boolean,
@@ -23,13 +23,13 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     }
 
     let token = await getCJAccessToken(env.DB, env.cj_host, env.cj_user_name, env.cj_api_key)
-    let res = await fetch(`${env.cj_host}v1/setting/get`, {
+    let res = await fetch(`${env.cj_host}v1/product/getCategory`, {
         headers: {
             'Content-Type': 'application/json',
             'CJ-Access-Token': token
         },
     })
-        .then(response => response.json<CJSettingAPIResponse>())
+        .then(response => response.json<CJCategoryAPIResponse>())
 
     return res;
 };
@@ -39,7 +39,7 @@ export default function HelloCJ() {
 
     return (
         <div>
-            <h1>Data from CJ setting API:</h1>
+            <h1>Data from CJ category API:</h1>
             <pre>{JSON.stringify(data, null, 2)}</pre>
         </div>
     );

@@ -16,6 +16,9 @@
   },
   "dependencies": {
     "@cloudflare/pages-plugin-mailchannels": "^0.1.2",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/material": "^5.15.2",
     "@remix-run/cloudflare": "^2.2.0",
     "@remix-run/cloudflare-pages": "^2.2.0",
     "@remix-run/node": "^2.2.0",

@@ -2,7 +2,7 @@ import { drizzle } from "drizzle-orm/d1";
 import type { CJToken, InsertCJToken } from "../schema/cj_token";
 import { cj_tokens } from "../schema/cj_token";
 
-type AccessTokenAPIResponse = {
+type CJAccessTokenAPIResponse = {
     code: number,
     message: string,
     success: boolean,
@@ -24,12 +24,8 @@ let shouldRefreshToken = (token: CJToken): boolean => {
 export let getCJAccessToken = async (
     db: D1Database, cj_host: string, cj_user_name: string, cj_api_key: string
 ): Promise<string> => {
-    console.log(`getCJAccessToken1`);
     let rows = await drizzle(db).select().from(cj_tokens).execute();
-    console.log(`getCJAccessToken2`);
     if (rows.length > 0) {
-        console.log(`getCJAccessToken3`);
-        console.log(`getCJAccessToken rows[0]: ${JSON.stringify(rows[0])}`);
         if (shouldRefreshToken(rows[0])) {
             let res = await refreshCJAccessToken(cj_host, rows[0].refresh_token);
             rows = await drizzle(db).insert(cj_tokens).values(
@@ -44,7 +40,6 @@ export let getCJAccessToken = async (
         return (rows[0] as CJToken).access_token;
     }
 
-    console.log(`getCJAccessToken4`);
     let res = await fetch(`${cj_host}v1/authentication/getAccessToken`, {
         method: 'POST',
         headers: {
@@ -55,7 +50,7 @@ export let getCJAccessToken = async (
             password: cj_api_key
         })
     })
-        .then(response => response.json<AccessTokenAPIResponse>())
+        .then(response => response.json<CJAccessTokenAPIResponse>())
 
     if (!res) throw new Error(`getCJAccessToken failed, res is null`);
     if (!res.success || !res.data) {
