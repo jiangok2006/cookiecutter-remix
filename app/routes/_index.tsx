@@ -34,7 +34,35 @@ type CJAPIProductListResponse = {
     code: number,
     message: string,
     success: boolean,
-    data: {}
+    data: {
+        pageNum: number,
+        pageSize: number,
+        total: number,
+        list: [{
+            pid: string,
+            productName: string,
+            productNameEn: string,
+            productSku: string,
+            productImage: string,
+            productWeight: string,
+            productType: string,
+            productUnit: string,
+            categoryName: string,
+            listingCount: number,
+            sellPrice: string,
+            remark: string,
+            addMarkStatus: string,
+            createTime: string,
+            isVideo: string,
+            saleStatus: number,
+            listedNum: number,
+            supplierName: string,
+            supplierId: string,
+            categoryId: string,
+            sourceFrom: string,
+            shippingCountryCodes: [string]
+        }]
+    }
 }
 
 let formData: {
@@ -244,6 +272,49 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
     return radios?.concat(<div><input type="radio" name="categoryRadio" key="all" value="all" />all</div>);
 }
 
+function BuildProductTable(products: CJAPIProductListResponse) {
+    if (!products || !products.data) {
+        return null;
+    }
+
+    function showDetail() {
+
+    }
+
+    let table = Array.isArray(products.data.list) ? (
+        <>
+            <thead>
+                <tr>
+                    <th>Product Image</th>
+                    <th>Product Name</th>
+                    <th>Sell Price</th>
+                    <th>Shipping Country Codes</th>
+                    <th>Listing count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {products.data.list.map((product: any, index: number) => {
+                    let cjUrl = `https://cjdropshipping.com/product/${product.productNameEn.toLowerCase().replace(' ', '-')}-p-${product.pid}.html`;
+                    let bg = index % 2 === 0 ? "bg-slate-100 p-3" : "bg-slate-200 p-3";
+                    return (
+                        <tr key={product.productId}>
+                            <td className={bg}>
+                                <a href={cjUrl}>
+                                    <img src={product.productImage} width={300} alt={product.productNameEn} />
+                                </a>
+                            </td>
+                            <td className={bg}>{product.productNameEn}</td>
+                            <td className={bg}>{product.sellPrice}</td>
+                            <td className={bg}>{product.shippingCountryCodes}</td>
+                            <td className={bg}>{product.listedNum}</td>
+                        </tr>
+                    );
+                })}
+            </tbody>
+        </>
+    ) : null;
+    return table;
+}
 
 export default function ProductList() {
     let { categories, products } = useLoaderData<typeof loader>();
@@ -305,9 +376,7 @@ export default function ProductList() {
                 </div>
                 <button type="submit" className="bg-gray-300 p-3" >search</button>
             </Form>
-            <pre>
-                {JSON.stringify(products, null, 2)}
-            </pre>
+            {BuildProductTable(products)}
             <Outlet />
         </div>
     );
