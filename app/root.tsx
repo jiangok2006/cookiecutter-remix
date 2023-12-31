@@ -41,7 +41,7 @@ export default function App() {
       <body>
         <div className="flex flex-row bg-stone-300">
           <span className="p-6">MyCoolApp</span>
-          <Link to="/cj" className="p-6 bg-orange-300 hover:bg-orange-100">CJ</Link>
+          <Link to="/" className="p-6 bg-orange-300 hover:bg-orange-100">CJ</Link>
           <Link to="/ebay" className="p-6 bg-orange-300 hover:bg-orange-100">eBay</Link>
           <Link to="/google" className="p-6 bg-orange-300 hover:bg-orange-100">Google</Link>
         </div>
