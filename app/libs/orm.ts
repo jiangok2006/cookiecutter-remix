@@ -10,7 +10,7 @@ export interface Env {
     cookie_secret: string;
     magic_link_secret: string;
     user_white_list: string;
-    disable_auth: boolean;
+    disable_auth: string;
 }
 
 export function getDb(context: AppLoadContext) {

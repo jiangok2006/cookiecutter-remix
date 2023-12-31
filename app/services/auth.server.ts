@@ -13,7 +13,6 @@ export const auth = (
     magic_link_secret: string,
     cookie_secret: string) => {
     if (authenticator === undefined) {
-        console.log(`auth: creating new authenticator`);
         authenticator = new Authenticator<User>(createCookieSessionStorageWithVars(cookie_secret));
         // Here we need the sendEmail, the secret and the URL where the user is sent
         // after clicking on the magic link
