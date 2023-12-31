@@ -299,7 +299,7 @@ function BuildProductTable(products: CJAPIProductListResponse) {
                     return (
                         <tr key={product.productId}>
                             <td className={bg}>
-                                <a href={cjUrl}>
+                                <a href="#" onClick={() => window.open(cjUrl, '_blank')}>
                                     <img src={product.productImage} width={300} alt={product.productNameEn} />
                                 </a>
                             </td>
