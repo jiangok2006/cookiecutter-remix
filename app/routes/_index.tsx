@@ -235,10 +235,8 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
         }
     }
 
-    let i = 0;
-    let radios = Array.isArray(categories) ? categories.map((category: CategoryItem) => {
-        let bg = (i % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
-        i++;
+    let radios = Array.isArray(categories) ? categories.map((category: CategoryItem, index: number) => {
+        let bg = (index % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
         return (
             <div key={category.categoryFirstId} >
                 <div className={bg} key={category.categoryFirstId} onClick={toggle(category.categoryFirstId)}>
