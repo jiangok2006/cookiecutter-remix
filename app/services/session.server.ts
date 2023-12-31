@@ -14,7 +14,6 @@ export type SessionData = {
 
 export type SessionFlashData = {
     error: string;
-    categoryId: string;
 };
 
 export function createCookieSessionStorageWithVars(
