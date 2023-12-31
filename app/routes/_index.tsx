@@ -16,7 +16,3 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
 
     return redirect('/authed/cj');
 };
-
-
-export default function Index() {
-}
