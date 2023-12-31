@@ -384,10 +384,8 @@ export default function ProductList() {
                             <option value="in_30_days" key="in_30_days">in 30 days</option>
                             <option value="in_90_days" key="in_90_days">in 90 days</option>
                         </select>
-                    </div>
 
-                    <br />
-                    <div>
+                        &nbsp;&nbsp;
                         <label htmlFor="product_type">ProductType:</label>
                         <select defaultValue="all" key="product_type" name="product_type" className="bg-gray-100" >
                             <option value="all" key="all" >all</option>
@@ -402,13 +400,15 @@ export default function ProductList() {
                         &nbsp;&nbsp;
                         <label htmlFor="max_price">Max Price:</label>
                         <input type="text" name="max_price" key="max_price" className="bg-gray-100" />
+                    </div>
 
-                        &nbsp;&nbsp;
+                    <br />
+                    <div>
                         <label htmlFor="page_num">page Num:</label>
                         <input type="text" name="page_num" key="page_num" className="bg-gray-100" />
 
                         &nbsp;&nbsp;
-                        <label htmlFor="page_size">page size:</label>
+                        <label htmlFor="page_size">page size (less than 200):</label>
                         <input type="text" name="page_size" key="page_size" className="bg-gray-100" />
                     </div>
                 </div>
