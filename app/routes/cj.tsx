@@ -1,5 +1,6 @@
 import { json, type ActionFunctionArgs, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { Form, useLoaderData } from "@remix-run/react";
+import { Form, Outlet, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
 import { getCJAccessToken } from "../services/cj";
@@ -119,6 +120,14 @@ function formToParams(): string {
         }
     }
 
+    if (map.has("categoryRadio")) {
+        if (map.get("categoryRadio") === "all") {
+            ret = createQueryParams(ret, ``);
+        } else {
+            ret = createQueryParams(ret, `categoryId=${map.get("categoryRadio")}`);
+        }
+    }
+
     if (map.has("page_num"))
         ret = createQueryParams(ret, `pageNum=${map.get("page_num")}`);
 
@@ -183,34 +192,55 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
     return null;
 }
 
-function buildCategoryComponent(categories: CategoryItem[]) {
+function BuildCategoryComponent(categories: CategoryItem[]) {
+    const [collapse, setCollapse] = useState(new Map<string, boolean>());
+
     if (!categories) {
         return null;
     }
 
-    let radios = Array.isArray(categories) ? categories.map((category: CategoryItem) => (
-        <div className="form-check" key={category.categoryFirstId}>
-            {category.categoryFirstName}
-            {category.categoryFirstList && (
-                <div className="ml-4">
-                    {category.categoryFirstList && category.categoryFirstList.map((firstCategory: CategoryFirstListItem) => (
-                        <div className="form-check" key={firstCategory.categorySecondId}>
-                            &nbsp;&nbsp;&nbsp;&nbsp;{firstCategory.categorySecondName}
-                            <span>
-                                {firstCategory.categorySecondList && firstCategory.categorySecondList.map((secondCategory: CategorySecondListItem) => (
-                                    <span key={secondCategory.categoryId}>
-                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="radio" name="categoryRadio" value={secondCategory.categoryId} />
-                                        {secondCategory.categoryName}
-                                    </span>
-                                ))}
-                            </span>
-                        </div>
-                    ))}
+    function toggle(id: string) {
+        return () => {
+            let newCollapse = new Map<string, boolean>(collapse);
+            newCollapse.set(id, !newCollapse.get(id));
+            setCollapse(newCollapse);
+
+        }
+    }
+
+    let i = 0;
+    let radios = Array.isArray(categories) ? categories.map((category: CategoryItem) => {
+        let bg = (i % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
+        i++;
+        return (
+            <div key={category.categoryFirstId} >
+                <div className={bg} key={category.categoryFirstId} onClick={toggle(category.categoryFirstId)}>
+                    {category.categoryFirstName}
                 </div>
-            )}
-        </div>
-    )) : null;
+                <div key={category.categoryFirstId}>
+                    {category.categoryFirstList && collapse.get(category.categoryFirstId) && (
+                        (
+                            <div className="ml-4" >
+                                {category.categoryFirstList && category.categoryFirstList.map((firstCategory: CategoryFirstListItem) => (
+                                    <div className="form-check" key={firstCategory.categorySecondId}>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;{firstCategory.categorySecondName}
+                                        <span>
+                                            {firstCategory.categorySecondList && firstCategory.categorySecondList.map((secondCategory: CategorySecondListItem) => (
+                                                <span key={secondCategory.categoryId}>
+                                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                    <input type="radio" name="categoryRadio" value={secondCategory.categoryId} />
+                                                    {secondCategory.categoryName}
+                                                </span>
+                                            ))}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>)
+                    )}
+                </div>
+            </div>
+        )
+    }) : null;
     return radios?.concat(<div><input type="radio" name="categoryRadio" key="all" value="all" />all</div>);
 }
 
@@ -222,29 +252,28 @@ export default function ProductList() {
         <div>
             <Form method="post">
                 <div style={{ marginBottom: '1rem' }}>
-                    {buildCategoryComponent(categories.data)}
+                    {BuildCategoryComponent(categories.data)}
                     <br />
                     <div>
                         <label htmlFor="product_id">Product ID:</label>
-                        <input type="text" name="product_id" key="product_id" />
+                        <input type="text" name="product_id" key="product_id" className="bg-gray-100" />
 
                         &nbsp;&nbsp;
                         <label htmlFor="product_sku">Product SKU:</label>
-                        <input type="text" name="product_sku" key="product_sku" />
+                        <input type="text" name="product_sku" key="product_sku" className="bg-gray-100" />
                     </div>
                     <br />
 
                     <div>
-                        &nbsp;&nbsp;
                         <label htmlFor="warehouse_country_code">Warehouse:</label>
-                        <select defaultValue="US" name="warehouse_country_code">
+                        <select defaultValue="US" name="warehouse_country_code" className="bg-gray-100" >
                             <option value="US" key="US">US</option>
                             <option value="CN" key="CN">CN</option>
                         </select>
 
                         &nbsp;&nbsp;
                         <label htmlFor="create_time_from">CreateTimeFrom:</label>
-                        <select defaultValue="all" key="create_time_from" name="create_time_from">
+                        <select defaultValue="all" key="create_time_from" name="create_time_from" className="bg-gray-100" >
                             <option value="all" key="all" >all</option>
                             <option value="in_7_days" key="in_7_days">in 7 days</option>
                             <option value="in_30_days" key="in_30_days">in 30 days</option>
@@ -254,9 +283,8 @@ export default function ProductList() {
 
                     <br />
                     <div>
-                        &nbsp;&nbsp;
                         <label htmlFor="product_type">ProductType:</label>
-                        <select defaultValue="all" key="product_type" name="product_type">
+                        <select defaultValue="all" key="product_type" name="product_type" className="bg-gray-100" >
                             <option value="all" key="all" >all</option>
                             <option value="SUPPLIER_SHIPPED_PRODUCT" key="SUPPLIER_SHIPPED_PRODUCT">SUPPLIER SHIPPED PRODUCT</option>
                             <option value="ORDINARY_PRODUCT" key="ORDINARY_PRODUCT">ORDINARY PRODUCT</option>
@@ -264,22 +292,23 @@ export default function ProductList() {
 
                         &nbsp;&nbsp;
                         <label htmlFor="min_price">Min Price:</label>
-                        <input type="text" name="min_price" key="min_price" />
+                        <input type="text" name="min_price" key="min_price" className="bg-gray-100" />
 
                         &nbsp;&nbsp;
                         <label htmlFor="max_price">Max Price:</label>
-                        <input type="text" name="max_price" key="max_price" />
+                        <input type="text" name="max_price" key="max_price" className="bg-gray-100" />
 
                         &nbsp;&nbsp;
                         <label htmlFor="page_num">page Num:</label>
-                        <input type="text" name="page_num" key="page_num" />
+                        <input type="text" name="page_num" key="page_num" className="bg-gray-100" />
                     </div>
                 </div>
-                <button type="submit">search</button>
+                <button type="submit" className="bg-gray-300 p-3" >search</button>
             </Form>
             <pre>
                 {JSON.stringify(products, null, 2)}
             </pre>
+            <Outlet />
         </div>
     );
 }
