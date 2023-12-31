@@ -158,6 +158,9 @@ function formToParams(): string {
     if (map.has("page_num"))
         ret = createQueryParams(ret, `pageNum=${map.get("page_num")}`);
 
+    if (map.has("page_size"))
+        ret = createQueryParams(ret, `pageSize=${map.get("page_size")}`);
+
     console.log(`formToParams: ${ret}`);
     return ret;
 }
@@ -270,46 +273,79 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
 }
 
 function BuildProductTable(products: CJAPIProductListResponse) {
+    const [sortedField, setSortedField] = useState<string | null>(null);
+    const [isAscending, setIsAscending] = useState(false);
+
     if (!products || !products.data) {
         return null;
     }
 
-    let table = Array.isArray(products.data.list) ? (
+    let sortedProducts = [...products.data.list];
+    if (sortedField !== null) {
+        sortedProducts.sort((a, b) => {
+            if (a[sortedField as keyof typeof a] < b[sortedField as keyof typeof b]) {
+                return isAscending ? -1 : 1;
+            }
+            if (a[sortedField as keyof typeof a] > b[sortedField as keyof typeof b]) {
+                return isAscending ? 1 : -1;
+            }
+            return 0;
+        });
+    }
+
+    let table = (
         <>
             <pre>
                 total (may include non-CN/US warehouses): {products.data.total}
             </pre>
-            <thead>
-                <tr>
-                    <th>Product Image</th>
-                    <th>Product Name</th>
-                    <th>Sell Price</th>
-                    <th>Shipping Country Codes</th>
-                    <th>Listing count</th>
-                </tr>
-            </thead>
-            <tbody>
-                {products.data.list.map((product: any, index: number) => {
-                    if (product.shippingCountryCodes.indexOf('CN') < 0 && product.shippingCountryCodes.indexOf('US') < 0) return null;
-                    let cjUrl = `https://cjdropshipping.com/product/${product.productNameEn.toLowerCase().replace(' ', '-')}-p-${product.pid}.html`;
-                    let bg = index % 2 === 0 ? "bg-slate-100 p-3" : "bg-slate-200 p-3";
-                    return (
-                        <tr key={product.productId}>
-                            <td className={bg}>
-                                <a href="#" onClick={() => window.open(cjUrl, '_blank')}>
-                                    <img src={product.productImage} width={300} alt={product.productNameEn} />
-                                </a>
-                            </td>
-                            <td className={bg} style={{ width: "20%" }}>{product.productNameEn}</td>
-                            <td className={bg}>{product.sellPrice}</td>
-                            <td className={bg}>{product.shippingCountryCodes.join(',')}</td>
-                            <td className={bg}>{product.listedNum}</td>
-                        </tr>
-                    );
-                })}
-            </tbody>
+            <table>
+                <thead>
+                    <tr>
+                        <th>
+                            Product Image
+                        </th>
+                        <th>
+                            Product Name
+                        </th>
+                        <th>
+                            Sell Price
+                        </th>
+                        <th>
+                            Shipping Country Codes
+                        </th>
+                        <th>
+                            <button type="button" onClick={() => {
+                                setSortedField('listingCount');
+                                setIsAscending(!isAscending)
+                            }}>
+                                Listing count
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {sortedProducts.map((product: any, index: number) => {
+                        if (product.shippingCountryCodes.indexOf('CN') < 0 && product.shippingCountryCodes.indexOf('US') < 0) return null;
+                        let cjUrl = `https://cjdropshipping.com/product/${product.productNameEn.toLowerCase().replace(' ', '-')}-p-${product.pid}.html`;
+                        let bg = index % 2 === 0 ? "bg-slate-100 p-3" : "bg-slate-200 p-3";
+                        return (
+                            <tr key={product.productId}>
+                                <td className={bg}>
+                                    <a href="#" onClick={() => window.open(cjUrl, '_blank')}>
+                                        <img src={product.productImage} width={300} alt={product.productNameEn} />
+                                    </a>
+                                </td>
+                                <td className={bg} style={{ width: "20%" }}>{product.productNameEn}</td>
+                                <td className={bg}>{product.sellPrice}</td>
+                                <td className={bg}>{product.shippingCountryCodes.join(',')}</td>
+                                <td className={bg}>{product.listedNum}</td>
+                            </tr>
+                        );
+                    })}
+                </tbody>
+            </table>
         </>
-    ) : null;
+    );
     return table;
 }
 
@@ -370,6 +406,10 @@ export default function ProductList() {
                         &nbsp;&nbsp;
                         <label htmlFor="page_num">page Num:</label>
                         <input type="text" name="page_num" key="page_num" className="bg-gray-100" />
+
+                        &nbsp;&nbsp;
+                        <label htmlFor="page_size">page size:</label>
+                        <input type="text" name="page_size" key="page_size" className="bg-gray-100" />
                     </div>
                 </div>
                 <button type="submit" className="bg-gray-300 p-3" >search</button>
