@@ -4,7 +4,6 @@ import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
 import { getCJAccessToken } from "../services/cj";
 
-
 type CategorySecondListItem = {
     categoryId: string,
     categoryName: string,
@@ -72,7 +71,6 @@ function formToParams(): string {
 
     if (map.has("product_sku"))
         return `?productSku=${map.get("product_sku")}`;
-
 
     let ret: string = "";
 
