@@ -105,20 +105,19 @@ function formToParams(): string {
 
     let ret: string = "";
 
-    if (map.has("brand_id"))
-        ret = createQueryParams(ret, `brandId=${map.get("brand_id")}`);
-
-    if (map.has("country_code"))
-        ret = createQueryParams(ret, `countryCode=${map.get("country_code")}`);
-
     if (map.has("min_price"))
         ret = createQueryParams(ret, `minPrice=${map.get("min_price")}`);
 
     if (map.has("max_price"))
         ret = createQueryParams(ret, `maxPrice=${map.get("max_price")}`);
 
-    if (map.has("warehouse_country_code"))
-        ret = createQueryParams(ret, `countryCode=${map.get("warehouse_country_code")}`);
+    if (map.has("warehouse_country_code")) {
+        if (map.get("warehouse_country_code") === "all") {
+            ret = createQueryParams(ret, ``);
+        } else {
+            ret = createQueryParams(ret, `countryCode=${map.get("warehouse_country_code")}`);
+        }
+    }
 
     if (map.has("create_time_from")) {
         if (map.get("create_time_from") === "all") {
@@ -277,12 +276,11 @@ function BuildProductTable(products: CJAPIProductListResponse) {
         return null;
     }
 
-    function showDetail() {
-
-    }
-
     let table = Array.isArray(products.data.list) ? (
         <>
+            <pre>
+                total (may include non-CN/US warehouses): {products.data.total}
+            </pre>
             <thead>
                 <tr>
                     <th>Product Image</th>
@@ -294,18 +292,19 @@ function BuildProductTable(products: CJAPIProductListResponse) {
             </thead>
             <tbody>
                 {products.data.list.map((product: any, index: number) => {
+                    if (product.shippingCountryCodes.indexOf('CN') < 0 && product.shippingCountryCodes.indexOf('US') < 0) return null;
                     let cjUrl = `https://cjdropshipping.com/product/${product.productNameEn.toLowerCase().replace(' ', '-')}-p-${product.pid}.html`;
                     let bg = index % 2 === 0 ? "bg-slate-100 p-3" : "bg-slate-200 p-3";
                     return (
                         <tr key={product.productId}>
                             <td className={bg}>
-                                <a href={cjUrl}>
+                                <a href="#" onClick={() => window.open(cjUrl, '_blank')}>
                                     <img src={product.productImage} width={300} alt={product.productNameEn} />
                                 </a>
                             </td>
-                            <td className={bg}>{product.productNameEn}</td>
+                            <td className={bg} style={{ width: "20%" }}>{product.productNameEn}</td>
                             <td className={bg}>{product.sellPrice}</td>
-                            <td className={bg}>{product.shippingCountryCodes}</td>
+                            <td className={bg}>{product.shippingCountryCodes.join(',')}</td>
                             <td className={bg}>{product.listedNum}</td>
                         </tr>
                     );
@@ -337,7 +336,8 @@ export default function ProductList() {
 
                     <div>
                         <label htmlFor="warehouse_country_code">Warehouse:</label>
-                        <select defaultValue="US" name="warehouse_country_code" className="bg-gray-100" >
+                        <select defaultValue="all" name="warehouse_country_code" className="bg-gray-100" >
+                            <option value="all" key="all">all</option>
                             <option value="US" key="US">US</option>
                             <option value="CN" key="CN">CN</option>
                         </select>
@@ -357,8 +357,8 @@ export default function ProductList() {
                         <label htmlFor="product_type">ProductType:</label>
                         <select defaultValue="all" key="product_type" name="product_type" className="bg-gray-100" >
                             <option value="all" key="all" >all</option>
-                            <option value="SUPPLIER_SHIPPED_PRODUCT" key="SUPPLIER_SHIPPED_PRODUCT">SUPPLIER SHIPPED PRODUCT</option>
                             <option value="ORDINARY_PRODUCT" key="ORDINARY_PRODUCT">ORDINARY PRODUCT</option>
+                            <option value="SUPPLIER_SHIPPED_PRODUCT" key="SUPPLIER_SHIPPED_PRODUCT">SUPPLIER SHIPPED PRODUCT</option>
                         </select>
 
                         &nbsp;&nbsp;
