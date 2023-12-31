@@ -7,7 +7,6 @@ import { createCookieSessionStorageWithVars } from "../services/session.server";
 
 export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
-    return json({ magicLinkSent: false, magicLinkEmail: '' })
     if (env.disable_auth === 'true')
         return json({ magicLinkSent: false, magicLinkEmail: '' })
 
