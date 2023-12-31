@@ -74,7 +74,7 @@ export let getCJAccessToken = async (
 
 export let refreshCJAccessToken = async (
     cj_host: string, refreshToken: string
-): Promise<AccessTokenAPIResponse> => {
+): Promise<CJAccessTokenAPIResponse> => {
     return fetch(`${cj_host}v1/authentication/refreshAccessToken`, {
         method: 'POST',
         headers: {
@@ -84,6 +84,6 @@ export let refreshCJAccessToken = async (
             refreshToken: refreshToken
         })
     })
-        .then(response => response.json<AccessTokenAPIResponse>())
+        .then(response => response.json<CJAccessTokenAPIResponse>())
 }
 

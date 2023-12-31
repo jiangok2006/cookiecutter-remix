@@ -4,7 +4,7 @@ import { auth } from "../services/auth.server";
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
-    if (!env.disable_auth) {
+    if (env.disable_auth === 'false') {
         await auth(
             env.DB,
             env.magic_link_secret,
