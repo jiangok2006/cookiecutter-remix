@@ -105,9 +105,6 @@ function formToParams(): string {
 
     let ret: string = "";
 
-    if (map.has("brand_id"))
-        ret = createQueryParams(ret, `brandId=${map.get("brand_id")}`);
-
     if (map.has("min_price"))
         ret = createQueryParams(ret, `minPrice=${map.get("min_price")}`);
 
