@@ -10,7 +10,7 @@ export let sendEmail: SendEmailFunction<User> = async (options) => {
         <p>
             Hi {options.user?.email || 'there'},<br />
             <br />
-            <a href={options.magicLink}>Click here to login on example.app</a>
+            <a href={options.magicLink}>Click here to login on MyCoolApp</a>
         </p>
     )
 
