@@ -16,7 +16,7 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
         env.DB,
         env.magic_link_secret,
         env.cookie_secret)
-        .isAuthenticated(request, { successRedirect: '/me' })
+        .isAuthenticated(request, { successRedirect: '/authed' })
 
     let session = await createCookieSessionStorageWithVars(env.cookie_secret)
         .getSession(request.headers.get('Cookie'))
@@ -59,14 +59,16 @@ export default function Login() {
     let { magicLinkSent, magicLinkEmail } = useLoaderData<typeof loader>()
     return (
         <Form method="post">
-            {magicLinkSent ? (
-                <p>
-                    Successfully sent magic link{' '}
-                    {magicLinkEmail ? `to ${magicLinkEmail}` : ''}
-                </p>
-            ) : (
-                <>
-                    <div className="bg-blue-100 grid place-items-center h-screen">
+            <div className="bg-blue-100 grid place-items-center h-screen">
+
+                {magicLinkSent ? (
+                    <p>
+                        Successfully sent magic link{' '}
+                        {magicLinkEmail ? `to ${magicLinkEmail}` : ''}
+                    </p>
+                ) : (
+                    <>
+
                         <div className="bg-gradient-to-b from-indigo-500 h-1/2 w-1/3 rounded p-5 font-serif " >
                             <div className='pt-5 pb-5 grid place-items-center '>
                                 MyCoolApp
@@ -83,9 +85,9 @@ export default function Login() {
                                 <button type='submit' className='bg-slate-300 p-5'>Email a login link</button>
                             </div>
                         </div>
-                    </div>
-                </>
-            )}
+                    </>
+                )}
+            </div>
         </Form>
     )
 }
