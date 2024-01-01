@@ -1,10 +1,9 @@
-import type { ActionFunctionArgs } from "@remix-run/cloudflare";
+import type { LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { redirect } from "@remix-run/cloudflare";
 import type { Env } from "../libs/orm";
 import { createCookieSessionStorageWithVars } from "../services/session.server";
 
-
-export let action = async ({ request, context }: ActionFunctionArgs) => {
+export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     console.log('logout is called')
 
     let env = context.env as Env;
