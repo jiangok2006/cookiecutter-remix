@@ -6,11 +6,7 @@ import type { Env } from "../libs/orm";
 // https://developer.ebay.com/marketplace-account-deletion
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
-    console.log(`after env: ${env.ebay_verification_token}`);
-
     const url = new URL(request.url);
-    console.log(`get url: ${url}`);
-
     const challengeCode = url.searchParams.get("challenge_code");
     console.log(`get challengeCode: ${challengeCode}`);
 
