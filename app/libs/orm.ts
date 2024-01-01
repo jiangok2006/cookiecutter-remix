@@ -13,6 +13,10 @@ export interface Env {
     disable_auth: string;
     ebay_verification_token: string;
     ebay_notification_endpoint: string;
+    ebay_sandbox_url: string;
+    ebay_sanbox_token: string;
+    ebay_production_url: string;
+    ebay_production_token: string;
 }
 
 export function getDb(context: AppLoadContext) {
