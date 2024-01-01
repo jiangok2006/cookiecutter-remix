@@ -16,7 +16,7 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
         env.DB,
         env.magic_link_secret,
         env.cookie_secret)
-        .isAuthenticated(request, { successRedirect: '/authed' })
+        .isAuthenticated(request, { successRedirect: '/authed/cj' })
 
     let session = await createCookieSessionStorageWithVars(env.cookie_secret)
         .getSession(request.headers.get('Cookie'))
