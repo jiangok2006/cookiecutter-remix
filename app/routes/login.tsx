@@ -10,8 +10,6 @@ export let loader = async ({ request, context }: LoaderFunctionArgs) => {
     if (env.disable_auth === 'true')
         return json({ magicLinkSent: false, magicLinkEmail: '' })
 
-    console.log(`login loader request.headers.get('Cookie'): ${request.headers.get('Cookie')}`)
-
     await auth(
         env.DB,
         env.magic_link_secret,
