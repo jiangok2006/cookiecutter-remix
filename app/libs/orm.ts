@@ -11,6 +11,8 @@ export interface Env {
     magic_link_secret: string;
     user_white_list: string;
     disable_auth: string;
+    ebay_verification_token: string;
+    ebay_notification_endpoint: string;
 }
 
 export function getDb(context: AppLoadContext) {
