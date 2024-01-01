@@ -1,4 +1,4 @@
-import type { LoaderFunction, LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { json, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { createHash } from "crypto";
 import type { Env } from "../libs/orm";
 
@@ -16,10 +16,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     hash.update(env.ebay_notification_endpoint);
     const responseHash = hash.digest('hex');
 
-    return new Response(responseHash, {
-        headers: {
-            'Content-Type': 'application/json',
+    return json(
+        {
+            "challengeResponse": responseHash
         },
-        status: 200,
-    });
+    );
 };
