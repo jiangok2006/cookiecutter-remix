@@ -14,13 +14,6 @@ type CJAccessTokenAPIResponse = {
     }
 }
 
-let shouldRefreshToken = (token: CJToken): boolean => {
-    let now = new Date();
-    let accessTokenExpireDate = new Date(token.access_token_expires_at);
-    accessTokenExpireDate.setDate(accessTokenExpireDate.getDate() - 1);
-    return now > accessTokenExpireDate;
-}
-
 export let getCJAccessToken = async (
     db: D1Database, cj_host: string, cj_user_name: string, cj_api_key: string
 ): Promise<string> => {
@@ -66,13 +59,21 @@ export let getCJAccessToken = async (
         refresh_token_expires_at: new Date(res.data.refreshTokenExpiryDate),
     }
 
+    // overwrite the old token
+    await drizzle(db).delete(cj_tokens).execute();
     rows = await drizzle(db).insert(cj_tokens).values(token).returning();
-    console.log(`getCJAccessToken6`);
 
     return (rows[0] as CJToken).access_token;
 }
 
-export let refreshCJAccessToken = async (
+export let shouldRefreshToken = (token: CJToken): boolean => {
+    let now = new Date();
+    let accessTokenExpireDate = new Date(token.access_token_expires_at);
+    accessTokenExpireDate.setDate(accessTokenExpireDate.getDate() - 1);
+    return now > accessTokenExpireDate;
+}
+
+let refreshCJAccessToken = async (
     cj_host: string, refreshToken: string
 ): Promise<CJAccessTokenAPIResponse> => {
     return fetch(`${cj_host}v1/authentication/refreshAccessToken`, {
@@ -86,4 +87,3 @@ export let refreshCJAccessToken = async (
     })
         .then(response => response.json<CJAccessTokenAPIResponse>())
 }
-

@@ -114,3 +114,10 @@ for (const pair of formData.entries()) {
 request.headers.forEach((value, key) => console.log(`${key} ==> ${value}`));
 
 ```
+
+
+Local test ebay API using ngrok:
+```
+ngrok http --domain=daily-concrete-marlin.ngrok-free.app 8788
+```
+use http://localhost:4040/inspect/http to inspect request.

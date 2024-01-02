@@ -1,4 +1,4 @@
-import type { LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
 
@@ -12,13 +12,6 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             .isAuthenticated(request, { failureRedirect: '/login' })
     }
 
-    return null;
+    let contentUrl = `${env.ebay_auth_host}oauth2/authorize?client_id=${env.ebay_client_id}&response_type=code&redirect_uri=${env.ebay_redirect_uri}&scope=${env.ebay_scope}&state=${env.ebay_consent_api_state}`
+    return redirect(contentUrl)
 };
-export default function Hello() {
-
-    return (
-        <div>
-            <h1>Hello eBay</h1>
-        </div>
-    );
-}
