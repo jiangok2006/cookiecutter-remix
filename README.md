@@ -119,6 +119,9 @@ console.log(`response: ${response.ok} ${response.status} ${response.statusText}`
 
 Local test ebay API using ngrok:
 ```
-ngrok http --domain=daily-concrete-marlin.ngrok-free.app 8788
+ngrok http --domain={local_domain} 8788
+>>>>>>> main
 ```
+local_domain MUST BE TREATED AS A SECRET!
+
 use http://localhost:4040/inspect/http to inspect request.
