@@ -6,6 +6,7 @@ import { AuthProvider, auth } from "../services/auth.server";
 import type { TokenPair } from "../services/oauth";
 import { getAccessToken, refreshAccessToken } from "../services/oauth";
 
+const provider = AuthProvider.cj
 
 type CategorySecondListItem = {
     categoryId: string,
@@ -176,7 +177,7 @@ async function callApi<T>(
     apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
     if (!gTokenPairsMap.get(provider) || !gTokenPairsMap.get(provider)?.accessToken)
         gTokenPairsMap.set(provider, await getAccessToken(
-            AuthProvider.cj, env.DB, providerHost,
+            provider, env.DB, providerHost,
             env.cj_user_name, env.cj_api_key))
 
     try {
@@ -207,12 +208,12 @@ async function call<T>(url: string, token: string): Promise<T> {
 
 async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
     return await callApi<CJAPICategoryResponse>(
-        env, AuthProvider.cj, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
+        env, provider, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
 }
 
 async function getProducts(env: Env, suffix: string) {
     return await callApi<CJAPIProductListResponse>(
-        env, AuthProvider.cj, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
+        env, provider, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {

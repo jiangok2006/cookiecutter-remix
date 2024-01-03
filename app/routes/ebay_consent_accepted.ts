@@ -16,6 +16,8 @@ function getSecondsFromNow(seconds: number): Date {
     return new Date(Date.now() + seconds * 1000);
 }
 
+const provider = AuthProvider.ebay;
+
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     console.log(`consent is accepted. request.url: ${request.url}`);
     let env = context.env as Env;
@@ -59,7 +61,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         const refresh_token_expires_in_seconds = resp.refresh_token_expires_in;
 
         let token = {
-            provider: AuthProvider.ebay,
+            provider: provider,
             access_token: access_token,
             refresh_token: refresh_token,
             access_token_expires_at: getSecondsFromNow(expires_in_seconds),
