@@ -6,7 +6,7 @@ import { AuthProvider, auth } from "../services/auth.server";
 import type { TokenPair } from "../services/oauth";
 import { getAccessToken, refreshAccessToken } from "../services/oauth";
 
-const provider = AuthProvider.cj
+const gProvider = AuthProvider.cj
 
 type CategorySecondListItem = {
     categoryId: string,
@@ -68,11 +68,6 @@ type CJAPIProductListResponse = {
 }
 
 export let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
-
-async function call<T>(url: string, token: string): Promise<T> {
-    return await fetch(url, BuildCJHeader(token))
-        .then(response => response.json<T>())
-}
 
 export async function callApi<T>(
     env: Env,
@@ -196,6 +191,11 @@ function formToParams(): string {
     return ret;
 }
 
+async function call<T>(url: string, token: string): Promise<T> {
+    return await fetch(url, BuildCJHeader(token))
+        .then(response => response.json<T>())
+}
+
 function BuildCJHeader(token: string) {
     return {
         headers: {
@@ -207,12 +207,12 @@ function BuildCJHeader(token: string) {
 
 async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
     return await callApi<CJAPICategoryResponse>(
-        env, provider, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
+        env, gProvider, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
 }
 
 async function getProducts(env: Env, suffix: string) {
     return await callApi<CJAPIProductListResponse>(
-        env, provider, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
+        env, gProvider, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
