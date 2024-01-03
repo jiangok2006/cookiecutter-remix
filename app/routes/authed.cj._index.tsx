@@ -191,15 +191,18 @@ async function callApi<T>(
     }
 }
 
+function BuildCJHeader(token: string) {
+    return {
+        headers: {
+            'Content-Type': 'application/json',
+            'CJ-Access-Token': token,
+        },
+    }
+}
+
 async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
     async function call(url: string, token: string): Promise<CJAPICategoryResponse> {
-        console.log(`getCategories: ${url}, ${token}`);
-        return await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'CJ-Access-Token': token,
-            },
-        })
+        return await fetch(url, BuildCJHeader(token))
             .then(response => response.json<CJAPICategoryResponse>())
     }
 
@@ -209,16 +212,11 @@ async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
 
 async function getProducts(env: Env, suffix: string) {
     async function call(url: string, token: string): Promise<CJAPIProductListResponse> {
-        return await fetch(url, {
-            headers: {
-                'Content-Type': 'application/json',
-                'CJ-Access-Token': token,
-            },
-        })
+        return await fetch(url, BuildCJHeader(token))
             .then(response => response.json<CJAPIProductListResponse>())
     }
     return await callApi<CJAPIProductListResponse>(
-        env, AuthProvider.cj, env.cj_host, "v1/product/list", call);
+        env, AuthProvider.cj, env.cj_host, `v1/product/list${suffix}`, call);
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
