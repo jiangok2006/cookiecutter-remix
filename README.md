@@ -113,7 +113,7 @@ for (const pair of formData.entries()) {
 
 request.headers.forEach((value, key) => console.log(`${key} ==> ${value}`));
 
-console.log(`response: ${response.status} ${response.statusText}`)
+console.log(`response: ${response.ok} ${response.status} ${response.statusText}`)
 ```
 
 

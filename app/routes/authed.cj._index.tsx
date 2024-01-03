@@ -67,13 +67,40 @@ type CJAPIProductListResponse = {
     }
 }
 
+export let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
+
+async function call<T>(url: string, token: string): Promise<T> {
+    return await fetch(url, BuildCJHeader(token))
+        .then(response => response.json<T>())
+}
+
+export async function callApi<T>(
+    env: Env,
+    provider: AuthProvider,
+    providerHost: string,
+    suffix: string,
+    apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
+    if (!gTokenPairsMap.get(provider) || !gTokenPairsMap.get(provider)?.accessToken)
+        gTokenPairsMap.set(provider, await getAccessToken(
+            provider, env.DB, providerHost,
+            env.cj_user_name, env.cj_api_key))
+
+    try {
+        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
+    } catch (e) {
+        console.warn(`callApi failed: ${e}, try to refresh token and retry.`)
+        gTokenPairsMap.set(provider, await refreshAccessToken(env.DB, provider, providerHost,
+            gTokenPairsMap.get(provider)!.refreshToken!,
+            env.cj_user_name, env.cj_api_key));
+
+        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
+    }
+}
+
+
 let gFormData: {
     [k: string]: FormDataEntryValue;
 } | undefined = undefined;
-
-
-export let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
-
 
 function createQueryParams(ret: string, param: string) {
     console.log(`createQueryParams: ${ret}, ${param}`);
@@ -169,29 +196,6 @@ function formToParams(): string {
     return ret;
 }
 
-async function callApi<T>(
-    env: Env,
-    provider: AuthProvider,
-    providerHost: string,
-    suffix: string,
-    apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
-    if (!gTokenPairsMap.get(provider) || !gTokenPairsMap.get(provider)?.accessToken)
-        gTokenPairsMap.set(provider, await getAccessToken(
-            provider, env.DB, providerHost,
-            env.cj_user_name, env.cj_api_key))
-
-    try {
-        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
-    } catch (e) {
-        console.warn(`callApi failed: ${e}, try to refresh token and retry.`)
-        gTokenPairsMap.set(provider, await refreshAccessToken(env.DB, provider, providerHost,
-            gTokenPairsMap.get(provider)!.refreshToken!,
-            env.cj_user_name, env.cj_api_key));
-
-        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
-    }
-}
-
 function BuildCJHeader(token: string) {
     return {
         headers: {
@@ -199,11 +203,6 @@ function BuildCJHeader(token: string) {
             'CJ-Access-Token': token,
         },
     }
-}
-
-async function call<T>(url: string, token: string): Promise<T> {
-    return await fetch(url, BuildCJHeader(token))
-        .then(response => response.json<T>())
 }
 
 async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
