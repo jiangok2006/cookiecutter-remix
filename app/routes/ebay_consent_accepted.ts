@@ -23,8 +23,6 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     const state = url.searchParams.get("state");
     const authCode = url.searchParams.get("code");
 
-    console.log(`state: ${state}, authCode: ${authCode}`);
-
     if (state !== env.ebay_consent_api_state) {
         throw new Error(`consent is accepted, but state is not matched. state: ${state}`)
     }
@@ -32,12 +30,12 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     try {
         let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
         let encodedSecret = Buffer.from(secret).toString('base64');
-        console.log(`encodedSecret: ${encodedSecret}`);
+
         let body = new URLSearchParams();
         body.append('grant_type', 'authorization_code');
         body.append('code', authCode!);
         body.append('redirect_uri', env.ebay_redirect_uri!);
-        console.log(`body: ${body}`);
+
         const response = await fetch(`${env.ebay_host}identity/v1/oauth2/token`, {
             method: 'POST',
             headers: {
@@ -55,7 +53,6 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
-        console.log(`resp: ${JSON.stringify(resp)}`);
         const access_token = resp.access_token;
         const refresh_token = resp.refresh_token;
         const expires_in_seconds = resp.expires_in;
@@ -68,14 +65,12 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             access_token_expires_at: getSecondsFromNow(expires_in_seconds),
             refresh_token_expires_at: getSecondsFromNow(refresh_token_expires_in_seconds),
         }
-        console.log(`token: ${JSON.stringify(token)}`);
         await drizzle(env.DB).insert(access_tokens).values(token)
             .onConflictDoUpdate(
                 {
                     target: access_tokens.provider,
                     set: token
                 }).returning();
-        console.log(`token is saved.`);
         return redirect('/authed/ebay');
     } catch (e) {
         throw new Error(`exchanging auth code with tokens failed: ${e}`)
