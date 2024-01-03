@@ -71,7 +71,7 @@ let gFormData: {
 } | undefined = undefined;
 
 
-let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
+export let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
 
 
 function createQueryParams(ret: string, param: string) {

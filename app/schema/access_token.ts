@@ -7,7 +7,7 @@ import { createInsertSchema, createSelectSchema } from "drizzle-valibot";
 
 export const access_tokens = sqliteTable('access_tokens', {
     id: integer('id').primaryKey(),
-    provider: text('provider').notNull(), // cj, ebay, google
+    provider: text('provider').notNull().unique(), // cj, ebay, google
     access_token: text('access_token').notNull(),
     access_token_expires_at: integer('access_token_expires_at', { mode: 'timestamp_ms' }).notNull(),
     refresh_token: text('refresh_token').notNull(),

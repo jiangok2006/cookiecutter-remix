@@ -17,10 +17,13 @@ export interface Env {
     ebay_host: string;
     ebay_auth_host: string;
     ebay_client_id: string;
+    ebay_client_secret: string;
     ebay_redirect_uri: string;
     ebay_scope: string;
     google_api_key: string;
-    google_client_id: string
+    google_client_id: string;
+    google_redirect_uri: string;
+    google_consent_api_state: string;
 }
 
 export function getDb(context: AppLoadContext) {

@@ -6,7 +6,7 @@
   "scripts": {
     "build": "remix build",
     "watch": "remix watch",
-    "dev": "wrangler pages dev ./public --d1 DB",
+    "dev": "wrangler pages dev ./public --d1 DB --compatibility-flag=nodejs_compat",
     "typecheck": "tsc",
     "test:e2e": "vitest -c ./vitest.config.e2e.ts --coverage",
     "test:staging": "vitest -c ./vitest.config.staging.ts",

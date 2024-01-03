@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
-import type { AccessToken, InsertAccessToken } from "../schema/access_token";
+import type { AccessToken } from "../schema/access_token";
 import { access_tokens } from "../schema/access_token";
 import { AuthProvider } from "./auth.server";
 
@@ -31,7 +31,7 @@ export let getAccessToken = async (
     let filter = eq(access_tokens.provider, provider)
     let rows = await drizzle(db).select().from(access_tokens).where(filter).execute();
     if (rows.length == 0) {
-        return recreateTokens(db, provider, providerHost, true,
+        return recreateTokens(db, provider, providerHost,
             cj_user_name, cj_api_key);
     }
 
@@ -44,12 +44,12 @@ export let getAccessToken = async (
 
 async function recreateTokens(
     db: D1Database,
-    provider: AuthProvider, provider_host: string, isNew: boolean,
+    provider: AuthProvider, provider_host: string,
     cj_user_name: string | null = null,
     cj_api_key: string | null = null): Promise<TokenPair> {
     switch (provider) {
         case AuthProvider.cj:
-            return await recreateCJTokens(db, provider_host, cj_user_name!, cj_api_key!, isNew);
+            return await recreateCJTokens(db, provider_host, cj_user_name!, cj_api_key!);
         case AuthProvider.ebay:
             return await recreateEbayTokens(provider_host, "", "");
         case AuthProvider.google:
@@ -61,7 +61,7 @@ async function recreateTokens(
 
 async function recreateCJTokens(
     db: D1Database,
-    cj_host: string, cj_user_name: string, cj_api_key: string, isNew: boolean):
+    cj_host: string, cj_user_name: string, cj_api_key: string):
     Promise<TokenPair> {
     let resp = await fetch(`${cj_host}v1/authentication/getAccessToken`, {
         method: 'POST',
@@ -79,7 +79,7 @@ async function recreateCJTokens(
         throw new Error(`failed to get access token: ${resp.message}`)
     }
 
-    const token: InsertAccessToken = {
+    const token = {
         provider: AuthProvider.cj,
         access_token: resp.data.accessToken,
         access_token_expires_at: new Date(resp.data.accessTokenExpiryDate),
@@ -87,15 +87,12 @@ async function recreateCJTokens(
         refresh_token_expires_at: new Date(resp.data.refreshTokenExpiryDate),
     }
 
-    let rows = null
-    if (isNew) {
-        rows = await drizzle(db).insert(access_tokens).values(token).returning();
-    } else {
-        let condition = eq(access_tokens.provider, AuthProvider.cj)
-        rows = await drizzle(db).update(access_tokens).set(token)
-            .where(condition).returning();
-    }
-
+    let rows = await drizzle(db).insert(access_tokens).values(token)
+        .onConflictDoUpdate(
+            {
+                target: access_tokens.provider,
+                set: token
+            }).returning();
     let row = rows[0] as AccessToken
     return {
         accessToken: row.access_token,
@@ -136,7 +133,7 @@ export let refreshAccessToken = async (
 
         // if refresh token stop working
         return await recreateTokens(
-            db, provider, providerHost, false,
+            db, provider, providerHost,
             cj_user_name, cj_api_key);
     }
 }
