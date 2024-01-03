@@ -1,1 +1,6 @@
-privacy policy
+
+export default function PrivatePolicy() {
+    return (<>
+        privacy policy
+    </>)
+}
