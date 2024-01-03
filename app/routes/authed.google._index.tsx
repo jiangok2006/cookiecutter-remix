@@ -1,6 +1,7 @@
-import type { LoaderFunction, LoaderFunctionArgs } from "@remix-run/node";
+import { redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
+
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
@@ -12,14 +13,15 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             .isAuthenticated(request, { failureRedirect: '/login' })
     }
 
-    return null;
+    let consent = "https://accounts.google.com/o/oauth2/v2/auth?" +
+        "scope=https://www.googleapis.com/auth/drive.metadata.readonly&" +
+        "access_type=offline&" +
+        "include_granted_scopes=true&" +
+        "response_type=code&" +
+        `state=${env.google_consent_api_state}&` +
+        `redirect_uri=${env.google_redirect_uri}&` +
+        `client_id=${env.google_client_id}`
+
+    console.log('consent', consent)
+    return redirect(consent)
 };
-
-export default function Hello() {
-
-    return (
-        <div>
-            <h1>Hello Google</h1>
-        </div>
-    );
-}

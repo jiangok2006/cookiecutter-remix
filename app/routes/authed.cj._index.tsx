@@ -2,9 +2,11 @@ import { json, type ActionFunctionArgs, type LoaderFunction, type LoaderFunction
 import { Form, Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import type { Env } from "../libs/orm";
-import { auth } from "../services/auth.server";
-import { getCJAccessToken } from "../services/cj";
+import { AuthProvider, auth } from "../services/auth.server";
+import type { TokenPair } from "../services/oauth";
+import { getAccessToken, refreshAccessToken } from "../services/oauth";
 
+const gProvider = AuthProvider.cj
 
 type CategorySecondListItem = {
     categoryId: string,
@@ -65,11 +67,35 @@ type CJAPIProductListResponse = {
     }
 }
 
-let formData: {
+export let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
+
+export async function callApi<T>(
+    env: Env,
+    provider: AuthProvider,
+    providerHost: string,
+    suffix: string,
+    apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
+    if (!gTokenPairsMap.get(provider) || !gTokenPairsMap.get(provider)?.accessToken)
+        gTokenPairsMap.set(provider, await getAccessToken(
+            provider, env.DB, providerHost,
+            env.cj_user_name, env.cj_api_key))
+
+    try {
+        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
+    } catch (e) {
+        console.warn(`callApi failed: ${e}, try to refresh token and retry.`)
+        gTokenPairsMap.set(provider, await refreshAccessToken(env.DB, provider, providerHost,
+            gTokenPairsMap.get(provider)!.refreshToken!,
+            env.cj_user_name, env.cj_api_key));
+
+        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
+    }
+}
+
+
+let gFormData: {
     [k: string]: FormDataEntryValue;
 } | undefined = undefined;
-
-let token: string = ""
 
 function createQueryParams(ret: string, param: string) {
     console.log(`createQueryParams: ${ret}, ${param}`);
@@ -85,11 +111,11 @@ function createTimeString(days: number) {
 }
 
 function formToParams(): string {
-    if (!formData) {
+    if (!gFormData) {
         return ""
     }
     const map = new Map<string, string>();
-    for (const [key, value] of Object.entries(formData)) {
+    for (const [key, value] of Object.entries(gFormData)) {
         console.log(`${key}: ${value}`);
         if (value) {
             map.set(key, value.toString());
@@ -165,24 +191,28 @@ function formToParams(): string {
     return ret;
 }
 
-async function callCJ<T>(env: Env, suffix: string) {
-    if (!token)
-        token = await getCJAccessToken(env.DB, env.cj_host, env.cj_user_name, env.cj_api_key)
-    return await fetch(`${env.cj_host}v1/${suffix}`, {
+async function call<T>(url: string, token: string): Promise<T> {
+    return await fetch(url, BuildCJHeader(token))
+        .then(response => response.json<T>())
+}
+
+function BuildCJHeader(token: string) {
+    return {
         headers: {
             'Content-Type': 'application/json',
             'CJ-Access-Token': token,
         },
-    })
-        .then(response => response.json<T>())
+    }
 }
 
-async function getCategories(env: Env) {
-    return await callCJ<CJAPICategoryResponse>(env, "product/getCategory");
+async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
+    return await callApi<CJAPICategoryResponse>(
+        env, gProvider, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
 }
 
 async function getProducts(env: Env, suffix: string) {
-    return await callCJ<CJAPIProductListResponse>(env, "product/list" + suffix);
+    return await callApi<CJAPIProductListResponse>(
+        env, gProvider, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
@@ -219,7 +249,7 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
     }
 
     const rawFormData = await request.formData();
-    formData = Object.fromEntries(rawFormData);
+    gFormData = Object.fromEntries(rawFormData);
     return null;
 }
 
@@ -242,20 +272,20 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
     let radios = Array.isArray(categories) ? categories.map((category: CategoryItem, index: number) => {
         let bg = (index % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
         return (
-            <div key={category.categoryFirstId} >
-                <div className={bg} key={category.categoryFirstId} onClick={toggle(category.categoryFirstId)}>
+            <div key={`${category.categoryFirstId}_${index}`} >
+                <div className={bg} key={'_' + category.categoryFirstId} onClick={toggle(category.categoryFirstId)}>
                     {category.categoryFirstName}
                 </div>
-                <div key={'_' + category.categoryFirstId}>
+                <div key={'__' + category.categoryFirstId}>
                     {category.categoryFirstList && collapse.get(category.categoryFirstId) && (
                         (
                             <div className="ml-4" >
-                                {category.categoryFirstList && category.categoryFirstList.map((firstCategory: CategoryFirstListItem) => (
-                                    <div className="form-check" key={firstCategory.categorySecondId}>
+                                {category.categoryFirstList && category.categoryFirstList.map((firstCategory: CategoryFirstListItem, index: number) => (
+                                    <div className="form-check" key={`${firstCategory.categorySecondId}_${index}`}>
                                         &nbsp;&nbsp;&nbsp;&nbsp;{firstCategory.categorySecondName}
                                         <span>
-                                            {firstCategory.categorySecondList && firstCategory.categorySecondList.map((secondCategory: CategorySecondListItem) => (
-                                                <span key={secondCategory.categoryId}>
+                                            {firstCategory.categorySecondList && firstCategory.categorySecondList.map((secondCategory: CategorySecondListItem, index: number) => (
+                                                <span key={`${secondCategory.categoryId}_${index}`}>
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                                                     <input type="radio" name="categoryRadio" value={secondCategory.categoryId} />
                                                     {secondCategory.categoryName}
@@ -270,7 +300,7 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
             </div>
         )
     }) : null;
-    return radios?.concat(<div><input type="radio" name="categoryRadio" key="all" value="all" />all</div>);
+    return radios?.concat(<div key="all"><input type="radio" name="categoryRadio" key="all" value="all" />all</div>);
 }
 
 function BuildProductTable(products: CJAPIProductListResponse) {
@@ -330,7 +360,7 @@ function BuildProductTable(products: CJAPIProductListResponse) {
                         let cjUrl = `https://cjdropshipping.com/product/${product.productNameEn.toLowerCase().replace(' ', '-')}-p-${product.pid}.html`;
                         let bg = index % 2 === 0 ? "bg-slate-100 p-3" : "bg-slate-200 p-3";
                         return (
-                            <tr key={product.productId}>
+                            <tr key={`${product.productId}_${index}`}>
                                 <td className={bg}>
                                     <a href="#" onClick={() => window.open(cjUrl, '_blank')}>
                                         <img src={product.productImage} width={300} alt={product.productNameEn} />
@@ -354,7 +384,7 @@ export default function ProductList() {
     let { categories, products } = useLoaderData<typeof loader>();
 
     return (
-        <div>
+        <>
             <Form method="post">
                 <div style={{ marginBottom: '1rem' }}>
                     {BuildCategoryComponent(categories.data)}
@@ -369,7 +399,7 @@ export default function ProductList() {
                     </div>
                     <br />
 
-                    <div>
+                    <div >
                         <label htmlFor="warehouse_country_code">Warehouse:</label>
                         <select defaultValue="all" name="warehouse_country_code" className="bg-gray-100" >
                             <option value="all" key="all">all</option>
@@ -417,6 +447,6 @@ export default function ProductList() {
             </Form>
             {BuildProductTable(products)}
             <Outlet />
-        </div>
+        </>
     );
 }
