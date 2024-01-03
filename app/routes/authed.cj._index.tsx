@@ -2,8 +2,9 @@ import { json, type ActionFunctionArgs, type LoaderFunction, type LoaderFunction
 import { Form, Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import type { Env } from "../libs/orm";
-import { auth } from "../services/auth.server";
-import { getCJAccessToken } from "../services/cj";
+import { AuthProvider, auth } from "../services/auth.server";
+import type { TokenPair } from "../services/oauth";
+import { getAccessToken, refreshAccessToken } from "../services/oauth";
 
 
 type CategorySecondListItem = {
@@ -65,11 +66,13 @@ type CJAPIProductListResponse = {
     }
 }
 
-let formData: {
+let gFormData: {
     [k: string]: FormDataEntryValue;
 } | undefined = undefined;
 
-let token: string = ""
+
+let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
+
 
 function createQueryParams(ret: string, param: string) {
     console.log(`createQueryParams: ${ret}, ${param}`);
@@ -85,11 +88,11 @@ function createTimeString(days: number) {
 }
 
 function formToParams(): string {
-    if (!formData) {
+    if (!gFormData) {
         return ""
     }
     const map = new Map<string, string>();
-    for (const [key, value] of Object.entries(formData)) {
+    for (const [key, value] of Object.entries(gFormData)) {
         console.log(`${key}: ${value}`);
         if (value) {
             map.set(key, value.toString());
@@ -165,24 +168,57 @@ function formToParams(): string {
     return ret;
 }
 
-async function callCJ<T>(env: Env, suffix: string) {
-    if (!token)
-        token = await getCJAccessToken(env.DB, env.cj_host, env.cj_user_name, env.cj_api_key)
-    return await fetch(`${env.cj_host}v1/${suffix}`, {
-        headers: {
-            'Content-Type': 'application/json',
-            'CJ-Access-Token': token,
-        },
-    })
-        .then(response => response.json<T>())
+async function callApi<T>(
+    env: Env,
+    provider: AuthProvider,
+    providerHost: string,
+    suffix: string,
+    apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
+    if (!gTokenPairsMap.get(provider) || !gTokenPairsMap.get(provider)?.accessToken)
+        gTokenPairsMap.set(provider, await getAccessToken(
+            AuthProvider.cj, env.DB, providerHost,
+            env.cj_user_name, env.cj_api_key))
+
+    try {
+        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
+    } catch (e) {
+        console.warn(`callApi failed: ${e}, try to refresh token and retry.`)
+        gTokenPairsMap.set(provider, await refreshAccessToken(env.DB, provider, providerHost,
+            gTokenPairsMap.get(provider)!.refreshToken!,
+            env.cj_user_name, env.cj_api_key));
+
+        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
+    }
 }
 
-async function getCategories(env: Env) {
-    return await callCJ<CJAPICategoryResponse>(env, "product/getCategory");
+async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
+    async function call(url: string, token: string): Promise<CJAPICategoryResponse> {
+        console.log(`getCategories: ${url}, ${token}`);
+        return await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'CJ-Access-Token': token,
+            },
+        })
+            .then(response => response.json<CJAPICategoryResponse>())
+    }
+
+    return await callApi<CJAPICategoryResponse>(
+        env, AuthProvider.cj, env.cj_host, `v1/product/getCategory`, call);
 }
 
 async function getProducts(env: Env, suffix: string) {
-    return await callCJ<CJAPIProductListResponse>(env, "product/list" + suffix);
+    async function call(url: string, token: string): Promise<CJAPIProductListResponse> {
+        return await fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'CJ-Access-Token': token,
+            },
+        })
+            .then(response => response.json<CJAPIProductListResponse>())
+    }
+    return await callApi<CJAPIProductListResponse>(
+        env, AuthProvider.cj, env.cj_host, "v1/product/list", call);
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
@@ -219,7 +255,7 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
     }
 
     const rawFormData = await request.formData();
-    formData = Object.fromEntries(rawFormData);
+    gFormData = Object.fromEntries(rawFormData);
     return null;
 }
 

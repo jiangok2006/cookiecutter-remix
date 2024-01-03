@@ -8,6 +8,20 @@
       "when": 1703851323313,
       "tag": "0000_lean_blackheart",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1704245831847,
+      "tag": "0001_early_mephistopheles",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1704247572722,
+      "tag": "0002_yummy_namor",
+      "breakpoints": true
     }
   ]
 }

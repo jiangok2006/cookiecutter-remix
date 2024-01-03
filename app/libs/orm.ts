@@ -19,6 +19,8 @@ export interface Env {
     ebay_client_id: string;
     ebay_redirect_uri: string;
     ebay_scope: string;
+    google_api_key: string;
+    google_client_id: string
 }
 
 export function getDb(context: AppLoadContext) {

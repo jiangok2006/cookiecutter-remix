@@ -9,6 +9,7 @@ import type { Env } from "../libs/orm";
 import { auth } from "../services/auth.server";
 
 
+
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
     console.log('env.disable_auth', env.disable_auth)

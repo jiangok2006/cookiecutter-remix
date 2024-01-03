@@ -65,7 +65,7 @@ npx wrangler d1 migrations list $DATABASE_NAME --local
 
 apply migrations (aka create tables) in local DB. DO NOT USE npx on MAC!
 ```
-wrangler d1 migrations apply $DATABASE_NAME  --local
+npx wrangler d1 migrations apply $DATABASE_NAME  --local
 ```
 
 insert seed data in local db. DO NOT USE npx on MAC!
