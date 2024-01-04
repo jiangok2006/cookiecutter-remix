@@ -2,6 +2,7 @@ name = "cookiecutter-remix"
 main = "app/root.tsx"
 compatibility_date = "2022-11-07"
 node_compat = true
+#compatibility_flags = [ "nodejs_compat" ]
 
 # CF page does not use wrangler.toml for D1. 
 [[d1_databases]]

@@ -2,8 +2,8 @@ import { json, redirect, type LoaderFunction, type LoaderFunctionArgs } from "@r
 import { useLoaderData } from "@remix-run/react";
 import type { Env } from "../libs/orm";
 import { AuthProvider, auth } from "../services/auth.server";
-import { getAccessToken } from "../services/oauth";
-import { callApi, gTokenPairsMap } from "./authed.cj._index";
+import { callApi, getAccessToken } from "../services/oauth";
+import { gTokenPairsMap } from "./authed.cj._index";
 
 const gProvider = AuthProvider.ebay
 
@@ -34,14 +34,14 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     }
 
     if (!gTokenPairsMap.get(gProvider) || !gTokenPairsMap.get(gProvider)?.accessToken) {
-        let tokenPair = await getAccessToken(gProvider, env.DB, env.ebay_host)
+        let tokenPair = await getAccessToken(gProvider, env)
         if (tokenPair) {
             gTokenPairsMap.set(gProvider, tokenPair)
         }
     }
 
     if (!gTokenPairsMap.get(gProvider)) {
-        let contentUrl = `${env.ebay_auth_host}oauth2/authorize?client_id=${env.ebay_client_id}&response_type=code&redirect_uri=${env.ebay_redirect_uri}&scope=${env.ebay_scope}&state=${env.ebay_consent_api_state}`
+        let contentUrl = `${env.ebay_auth_host}oauth2/authorize?client_id=${env.ebay_client_id}&response_type=code&redirect_uri=${env.ebay_redirect_uri}&scope=${env.ebay_scopes}&state=${env.ebay_consent_api_state}`
         return redirect(contentUrl)
     }
 

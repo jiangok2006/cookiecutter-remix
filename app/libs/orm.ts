@@ -19,11 +19,16 @@ export interface Env {
     ebay_client_id: string;
     ebay_client_secret: string;
     ebay_redirect_uri: string;
-    ebay_scope: string;
+    ebay_scopes: string;
+    google_host: string;
+    google_oauth_host: string;
     google_api_key: string;
     google_client_id: string;
+    google_client_secret: string;
     google_redirect_uri: string;
     google_consent_api_state: string;
+    google_auth_host: string;
+    google_scopes: string;
 }
 
 export function getDb(context: AppLoadContext) {

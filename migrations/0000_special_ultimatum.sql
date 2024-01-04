@@ -1,9 +1,10 @@
-CREATE TABLE `cj_tokens` (
+CREATE TABLE `access_tokens` (
 	`id` integer PRIMARY KEY NOT NULL,
-	`access_token` text NOT NULL,
-	`access_token_expires_at` integer NOT NULL,
-	`refresh_token` text NOT NULL,
-	`refresh_token_expires_at` integer NOT NULL,
+	`provider` text NOT NULL,
+	`access_token` text,
+	`access_token_expires_at` integer,
+	`refresh_token` text,
+	`refresh_token_expires_at` integer,
 	`created_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL,
 	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
@@ -24,4 +25,5 @@ CREATE TABLE `users` (
 	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
+CREATE UNIQUE INDEX `access_tokens_provider_unique` ON `access_tokens` (`provider`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
