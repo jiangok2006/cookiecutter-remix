@@ -1,9 +1,7 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
-import { Buffer } from 'node:buffer';
 import type { Env } from "../libs/orm";
 import { gTokenPairsMap } from "../routes/authed.cj._index";
-import { getSecondsFromNow } from "../routes/ebay_consent_accepted";
 import type { AccessToken } from "../schema/access_token";
 import { access_tokens } from "../schema/access_token";
 import { AuthProvider } from "./auth.server";
@@ -142,98 +140,33 @@ async function refreshCJTokens(
         resp.data.refreshTokenExpiryDate)
 }
 
-export function encodeBase64(str: string): string {
-    return Buffer.from(str).toString('base64');
-}
-
-async function refreshEbayTokens(
-    env: Env, refreshToken: string
-): Promise<TokenPair | null> {
-    // https://developer.ebay.com/api-docs/static/oauth-refresh-token-request.html
-
-    let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
-    let encodedSecret = encodeBase64(secret);
-
-    let resp = await fetch(env.google_oauth_host, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${encodedSecret}`
-        },
-        body: JSON.stringify({
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken,
-            scope: env.ebay_scopes,
-        })
-    })
-        .then(response => response.json<EbayRefreshTokenAPIResponse>())
-
-    return await saveToDb(env.DB, AuthProvider.ebay, null,
-        null, resp.access_token,
-        resp.expires_in)
+async function refreshBayTokens(
+    db: D1Database, provider: AuthProvider,
+    cj_host: string, refreshToken: string
+): Promise<TokenPair> {
+    throw new Error("not implemented")
 }
 
 async function refreshGoogleTokens(
-    env: Env, refreshToken: string
-): Promise<TokenPair | null> {
-    // https://developers.google.com/identity/protocols/oauth2/web-server#offline
-    let resp = await fetch(env.google_oauth_host, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            client_id: env.google_client_id,
-            client_secret: env.google_client_secret,
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken
-        })
-    })
-        .then(response => response.json<GoogleRefreshTokenAPIResponse>())
-
-    return await saveToDb(env.DB, AuthProvider.google, null,
-        null, resp.access_token,
-        resp.expires_in)
+    db: D1Database, provider: AuthProvider,
+    cj_host: string, refreshToken: string
+): Promise<TokenPair> {
+    throw new Error("not implemented")
 }
 
-export async function saveToDb(
-    db: D1Database,
-    provider: AuthProvider,
-    accessToken: string | null,
-    accessTokenExpiry: string | number | null,
-    refreshToken: string | null,
-    refreshTokenExpiry: string | number | null):
-    Promise<TokenPair> {
-    function getExpiresIn(expiry: string | number | null): Date | null {
-        if (expiry == null) {
-            return null;
+async function saveToDb(
+    db: D1Database, provider: AuthProvider,
+    accessToken: string, accessTokenExpiryDate: string,
+    refreshToken: string, refreshTokenExpiryDate: string): Promise<TokenPair> {
+    let rows = await drizzle(db).insert(access_tokens).values(
+        {
+            provider: provider,
+            access_token: accessToken,
+            access_token_expires_at: new Date(accessTokenExpiryDate),
+            refresh_token: refreshToken,
+            refresh_token_expires_at: new Date(refreshTokenExpiryDate),
         }
-        // cj uses date string
-        if (typeof expiry === 'string') {
-            return new Date(expiry);
-        }
-        // google and ebay use seconds
-        return getSecondsFromNow(expiry);
-    }
-
-    let existing = await drizzle(db)
-        .select().from(access_tokens)
-        .where(eq(access_tokens.provider, provider)).execute();
-    let existing_row = existing.length > 0 ? existing[0] : null;
-
-    let tokens = {
-        provider: provider,
-        access_token: accessToken ?? existing_row?.access_token,
-        access_token_expires_at: getExpiresIn(accessTokenExpiry) ?? existing_row?.access_token_expires_at,
-        refresh_token: refreshToken ?? existing_row?.refresh_token,
-        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry) ?? existing_row?.refresh_token_expires_at,
-    }
-    let rows = await drizzle(db).insert(access_tokens).values(tokens)
-        .onConflictDoUpdate(
-            {
-                target: access_tokens.provider,
-                set: tokens
-            }).returning();
+    ).returning();
     let row = rows[0] as AccessToken
 
     return {
