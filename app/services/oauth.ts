@@ -168,9 +168,6 @@ async function refreshEbayTokens(
     })
         .then(response => response.json<EbayRefreshTokenAPIResponse>())
 
-=======
-    //TODO: token will be overriden by null
->>>>>>> main
     return await saveToDb(env.DB, AuthProvider.ebay, null,
         null, resp.access_token,
         resp.expires_in)
