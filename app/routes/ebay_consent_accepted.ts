@@ -1,9 +1,7 @@
 import { redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { drizzle } from "drizzle-orm/d1";
-import { Buffer } from 'node:buffer';
 import type { Env } from "../libs/orm";
-import { access_tokens } from "../schema/access_token";
 import { AuthProvider } from "../services/auth.server";
+import { encodeBase64, saveToDb } from "../services/oauth";
 
 type EbayTokenResponse = {
     access_token: string,
@@ -12,7 +10,7 @@ type EbayTokenResponse = {
     refresh_token_expires_in: number,
 }
 
-function getSecondsFromNow(seconds: number): Date {
+export function getSecondsFromNow(seconds: number): Date {
     return new Date(Date.now() + seconds * 1000);
 }
 
@@ -31,7 +29,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
 
     try {
         let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
-        let encodedSecret = Buffer.from(secret).toString('base64');
+        let encodedSecret = encodeBase64(secret);
 
         let body = new URLSearchParams();
         body.append('grant_type', 'authorization_code');
@@ -55,27 +53,13 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
-        const access_token = resp.access_token;
-        const refresh_token = resp.refresh_token;
-        const expires_in_seconds = resp.expires_in;
-        const refresh_token_expires_in_seconds = resp.refresh_token_expires_in;
 
-        let token = {
-            provider: gProvider,
-            access_token: access_token,
-            refresh_token: refresh_token,
-            access_token_expires_at: getSecondsFromNow(expires_in_seconds),
-            refresh_token_expires_at: getSecondsFromNow(refresh_token_expires_in_seconds),
-        }
-        await drizzle(env.DB).insert(access_tokens).values(token)
-            .onConflictDoUpdate(
-                {
-                    target: access_tokens.provider,
-                    set: token
-                }).returning();
+        await saveToDb(env.DB, gProvider, resp.access_token,
+            resp.expires_in, resp.refresh_token,
+            resp.refresh_token_expires_in)
         return redirect('/authed/ebay');
     } catch (e) {
-        throw new Error(`exchanging auth code with tokens failed: ${e}`)
+        throw new Error(`exchanging ebay auth code with tokens failed: ${e}`)
     }
 };
 

@@ -1,1 +1,0 @@
-CREATE UNIQUE INDEX `access_tokens_provider_unique` ON `access_tokens` (`provider`);

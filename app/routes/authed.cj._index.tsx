@@ -3,8 +3,7 @@ import { Form, Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import type { Env } from "../libs/orm";
 import { AuthProvider, auth } from "../services/auth.server";
-import type { TokenPair } from "../services/oauth";
-import { getAccessToken, refreshAccessToken } from "../services/oauth";
+import { callApi, type TokenPair } from "../services/oauth";
 
 const gProvider = AuthProvider.cj
 
@@ -67,30 +66,9 @@ type CJAPIProductListResponse = {
     }
 }
 
+
+
 export let gTokenPairsMap = new Map<AuthProvider, TokenPair | null>()
-
-export async function callApi<T>(
-    env: Env,
-    provider: AuthProvider,
-    providerHost: string,
-    suffix: string,
-    apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
-    if (!gTokenPairsMap.get(provider) || !gTokenPairsMap.get(provider)?.accessToken)
-        gTokenPairsMap.set(provider, await getAccessToken(
-            provider, env.DB, providerHost,
-            env.cj_user_name, env.cj_api_key))
-
-    try {
-        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
-    } catch (e) {
-        console.warn(`callApi failed: ${e}, try to refresh token and retry.`)
-        gTokenPairsMap.set(provider, await refreshAccessToken(env.DB, provider, providerHost,
-            gTokenPairsMap.get(provider)!.refreshToken!,
-            env.cj_user_name, env.cj_api_key));
-
-        return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
-    }
-}
 
 
 let gFormData: {
