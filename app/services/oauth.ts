@@ -168,7 +168,6 @@ async function refreshEbayTokens(
     })
         .then(response => response.json<EbayRefreshTokenAPIResponse>())
 
-    //TODO: token will be overriden by null
     return await saveToDb(env.DB, AuthProvider.ebay, null,
         null, resp.access_token,
         resp.expires_in)
@@ -192,7 +191,6 @@ async function refreshGoogleTokens(
     })
         .then(response => response.json<GoogleRefreshTokenAPIResponse>())
 
-    // TODO: token will be overriden by null
     return await saveToDb(env.DB, AuthProvider.google, null,
         null, resp.access_token,
         resp.expires_in)
@@ -210,26 +208,32 @@ export async function saveToDb(
         if (expiry == null) {
             return null;
         }
+        // cj uses date string
         if (typeof expiry === 'string') {
             return new Date(expiry);
         }
+        // google and ebay use seconds
         return getSecondsFromNow(expiry);
     }
 
+    let existing = await drizzle(db)
+        .select().from(access_tokens)
+        .where(eq(access_tokens.provider, provider)).execute();
+    let existing_row = existing.length > 0 ? existing[0] : null;
+
     let tokens = {
         provider: provider,
-        access_token: accessToken,
-        access_token_expires_at: getExpiresIn(accessTokenExpiry),
-        refresh_token: refreshToken,
-        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry),
+        access_token: accessToken ?? existing_row?.access_token,
+        access_token_expires_at: getExpiresIn(accessTokenExpiry) ?? existing_row?.access_token_expires_at,
+        refresh_token: refreshToken ?? existing_row?.refresh_token,
+        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry) ?? existing_row?.refresh_token_expires_at,
     }
-    let rows = await drizzle(db).insert(access_tokens).values(
-        tokens
-    ).onConflictDoUpdate(
-        {
-            target: access_tokens.provider,
-            set: tokens
-        }).returning();
+    let rows = await drizzle(db).insert(access_tokens).values(tokens)
+        .onConflictDoUpdate(
+            {
+                target: access_tokens.provider,
+                set: tokens
+            }).returning();
     let row = rows[0] as AccessToken
 
     return {
