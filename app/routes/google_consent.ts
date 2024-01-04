@@ -52,7 +52,6 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
 
-        //TODO: refresh token will be overriden by null
         await saveToDb(env.DB, gProvider, resp.access_token,
             resp.expires_in, resp.refresh_token,
             null)
