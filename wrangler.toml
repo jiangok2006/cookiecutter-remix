@@ -6,12 +6,12 @@ node_compat = true
 
 # CF page does not use wrangler.toml for D1. 
 [[d1_databases]]
-# binding = "DB"
-# database_name = "cookiecutter-remix-preview"
-# database_id = "625be3d4-dc36-4d7c-9497-4a9b2b152545"
-# preview_database_id = "DB" 
-
 binding = "DB"
-database_name = "cookiecutter-remix-production"
-database_id = "984a6265-a5d9-4044-a2df-64b17caca0d4"
+database_name = "cookiecutter-remix-preview"
+database_id = "625be3d4-dc36-4d7c-9497-4a9b2b152545"
 preview_database_id = "DB" 
+
+# binding = "DB"
+# database_name = "cookiecutter-remix-production"
+# database_id = "984a6265-a5d9-4044-a2df-64b17caca0d4"
+# preview_database_id = "DB" 
