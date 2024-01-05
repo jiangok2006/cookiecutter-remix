@@ -76,7 +76,6 @@ let gFormData: {
 } | undefined = undefined;
 
 function createQueryParams(ret: string, param: string) {
-    console.log(`createQueryParams: ${ret}, ${param}`);
     ret = ret === "" ? `?` : param === "" ? ret : `${ret}&`
     return `${ret}${param}`
 }
@@ -94,10 +93,10 @@ function formToParams(): string {
     }
     const map = new Map<string, string>();
     for (const [key, value] of Object.entries(gFormData)) {
-        console.log(`${key}: ${value}`);
+        //console.log(`${key}: ${value}`);
         if (value) {
             map.set(key, value.toString());
-            console.log(`add to map: ${key}: ${value}`);
+            //console.log(`add to map: ${key}: ${value}`);
         }
     }
     if (map.has("product_id"))
@@ -238,23 +237,21 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
         return null;
     }
 
-    function toggle(id: string) {
-        return () => {
-            let newCollapse = new Map<string, boolean>(collapse);
-            newCollapse.set(id, !newCollapse.get(id));
-            setCollapse(newCollapse);
-
-        }
+    let toggle = (id: string) => {
+        let newCollapse = new Map<string, boolean>(collapse);
+        newCollapse.set(id, !newCollapse.get(id));
+        setCollapse(newCollapse);
     }
 
     let radios = Array.isArray(categories) ? categories.map((category: CategoryItem, index: number) => {
         let bg = (index % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
         return (
-            <div key={`${category.categoryFirstId}_${index}`} >
-                <div className={bg} key={'_' + category.categoryFirstId} onClick={toggle(category.categoryFirstId)}>
+            <div key={`${category.categoryFirstId}_${index}`} onClick={() => { console.log("hello") }}>
+                <div className={bg} key={category.categoryFirstId}
+                    onClick={() => { console.log("hello") }}>
                     {category.categoryFirstName}
                 </div>
-                <div key={'__' + category.categoryFirstId}>
+                <div key={category.categoryFirstId}>
                     {category.categoryFirstList && collapse.get(category.categoryFirstId) && (
                         (
                             <div className="ml-4" >
@@ -340,8 +337,10 @@ function BuildProductTable(products: CJAPIProductListResponse) {
                         return (
                             <tr key={`${product.productId}_${index}`}>
                                 <td className={bg}>
-                                    <a href="#" onClick={() => window.open(cjUrl, '_blank')}>
-                                        <img src={product.productImage} width={300} alt={product.productNameEn} />
+                                    <a href={cjUrl} target="_blank" rel="noreferrer">
+                                        <img src={product.productImage} width={300}
+                                            alt={product.productNameEn}
+                                        />
                                     </a>
                                 </td>
                                 <td className={bg} style={{ width: "20%" }}>{product.productNameEn}</td>
@@ -363,7 +362,8 @@ export default function ProductList() {
 
     return (
         <>
-            <Form method="post">
+            <div onClick={() => console.log("he")}>hello</div>
+            <Form method="post" navigate={false}>
                 <div style={{ marginBottom: '1rem' }}>
                     {BuildCategoryComponent(categories.data)}
                     <br />

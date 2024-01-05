@@ -23,9 +23,9 @@ export default function App() {
         <Links />
       </head>
       <body>
+        <Scripts />
         <Outlet />
         <ScrollRestoration />
-        <Scripts />
         <LiveReload />
       </body>
     </html>

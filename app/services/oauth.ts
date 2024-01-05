@@ -258,7 +258,7 @@ export async function callApi<T>(
     try {
         let resp = await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
         let jresp = JSON.stringify(resp)
-        console.log(`callApi: ${jresp}`)
+        //console.log(`callApi: ${jresp}`)
         if (jresp.includes('UNAUTHENTICATED')) {
             throw new Error(`UNAUTHENTICATED: ${jresp}`)
         }
