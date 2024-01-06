@@ -1,7 +1,8 @@
 import { json, redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import type { Env } from "../libs/orm";
-import { AuthProvider, auth } from "../services/auth.server";
+import { AuthProvider } from "../libs/types";
+import { auth } from "../services/auth.server";
 import { callApi, getAccessToken } from "../services/oauth";
 import { gTokenPairsMap } from "./authed.cj._index";
 

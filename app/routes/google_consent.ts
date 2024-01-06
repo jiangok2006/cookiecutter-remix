@@ -1,6 +1,6 @@
 import { redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import type { Env } from "../libs/orm";
-import { AuthProvider } from "../services/auth.server";
+import { AuthProvider } from "../libs/types";
 import { saveToDb } from "../services/oauth";
 
 const gProvider = AuthProvider.google;

@@ -56,7 +56,7 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
 export default function Login() {
     let { magicLinkSent, magicLinkEmail } = useLoaderData<typeof loader>()
     return (
-        <Form method="post">
+        <Form name="login_form" method="post">
             <div className="bg-blue-100 grid place-items-center h-screen">
 
                 {magicLinkSent ? (

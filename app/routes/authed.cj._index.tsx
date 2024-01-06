@@ -2,7 +2,8 @@ import { json, type ActionFunctionArgs, type LoaderFunction, type LoaderFunction
 import { Form, Outlet, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import type { Env } from "../libs/orm";
-import { AuthProvider, auth } from "../services/auth.server";
+import { AuthProvider } from "../libs/types";
+import { auth } from "../services/auth.server";
 import { callApi, type TokenPair } from "../services/oauth";
 
 const gProvider = AuthProvider.cj
@@ -238,17 +239,19 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
     }
 
     let toggle = (id: string) => {
-        let newCollapse = new Map<string, boolean>(collapse);
-        newCollapse.set(id, !newCollapse.get(id));
-        setCollapse(newCollapse);
+        return () => {
+            let newCollapse = new Map<string, boolean>(collapse);
+            newCollapse.set(id, !newCollapse.get(id));
+            setCollapse(newCollapse);
+        }
     }
 
     let radios = Array.isArray(categories) ? categories.map((category: CategoryItem, index: number) => {
         let bg = (index % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
         return (
-            <div key={`${category.categoryFirstId}_${index}`} onClick={() => { console.log("hello") }}>
+            <div key={`${category.categoryFirstId}_${index}`} >
                 <div className={bg} key={category.categoryFirstId}
-                    onClick={() => { console.log("hello") }}>
+                    onClick={toggle(category.categoryFirstId)}>
                     {category.categoryFirstName}
                 </div>
                 <div key={category.categoryFirstId}>
@@ -362,8 +365,7 @@ export default function ProductList() {
 
     return (
         <>
-            <div onClick={() => console.log("he")}>hello</div>
-            <Form method="post" navigate={false}>
+            <Form name="search_form" method="post" navigate={false}>
                 <div style={{ marginBottom: '1rem' }}>
                     {BuildCategoryComponent(categories.data)}
                     <br />

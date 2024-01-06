@@ -1,6 +1,8 @@
-export enum Environment {
-    Staging = "staging",
-    Production = "production",
+
+export const enum AuthProvider {
+    cj = 'cj',
+    google = 'google',
+    ebay = 'ebay',
 }
 
 type SendEmailOptions<User> = {
