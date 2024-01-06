@@ -2,11 +2,12 @@ import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Buffer } from 'node:buffer';
 import type { Env } from "../libs/orm";
+import { AuthProvider } from "../libs/types";
 import { gTokenPairsMap } from "../routes/authed.cj._index";
 import { getSecondsFromNow } from "../routes/ebay_consent_accepted";
 import type { AccessToken } from "../schema/access_token";
 import { access_tokens } from "../schema/access_token";
-import { AuthProvider } from "./auth.server";
+
 
 export type TokenPair = {
     accessToken: string | null,
@@ -258,7 +259,7 @@ export async function callApi<T>(
     try {
         let resp = await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
         let jresp = JSON.stringify(resp)
-        console.log(`callApi: ${jresp}`)
+        //console.log(`callApi: ${jresp}`)
         if (jresp.includes('UNAUTHENTICATED')) {
             throw new Error(`UNAUTHENTICATED: ${jresp}`)
         }

@@ -8,11 +8,6 @@ import { sendEmail } from "./email.service";
 
 let authenticator: Authenticator<User>;
 
-export enum AuthProvider {
-    cj = 'cj',
-    google = 'google',
-    ebay = 'ebay',
-}
 
 export const auth = (
     db: D1Database,
