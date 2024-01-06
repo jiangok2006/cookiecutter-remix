@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Buffer } from 'node:buffer';
 import type { Env } from "../libs/orm";
@@ -217,24 +217,26 @@ export async function saveToDb(
         return getSecondsFromNow(expiry);
     }
 
-    let existing = await drizzle(db)
-        .select().from(access_tokens)
-        .where(eq(access_tokens.provider, provider)).execute();
-    let existing_row = existing.length > 0 ? existing[0] : null;
-
     let tokens = {
         provider: provider,
-        access_token: accessToken ?? existing_row?.access_token,
-        access_token_expires_at: getExpiresIn(accessTokenExpiry) ?? existing_row?.access_token_expires_at,
-        refresh_token: refreshToken ?? existing_row?.refresh_token,
-        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry) ?? existing_row?.refresh_token_expires_at,
+        access_token: accessToken,
+        access_token_expires_at: getExpiresIn(accessTokenExpiry),
+        refresh_token: refreshToken,
+        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry),
     }
     let rows = await drizzle(db).insert(access_tokens).values(tokens)
         .onConflictDoUpdate(
             {
                 target: access_tokens.provider,
-                set: tokens
+                set: {
+                    ...tokens,
+                    access_token: sql`coalesce(${tokens.access_token}, excluded.access_token)`,
+                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at}, excluded.access_token_expires_at)`,
+                    refresh_token: sql`coalesce(${tokens.refresh_token}, excluded.refresh_token)`,
+                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at}, excluded.refresh_token_expires_at)`,
+                }
             }).returning();
+
     let row = rows[0] as AccessToken
 
     return {
