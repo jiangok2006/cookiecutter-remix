@@ -253,7 +253,6 @@ export async function callApi<T>(
     suffix: string,
     apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
     if (!gTokenPairsMap?.get(provider)?.accessToken) {
-        console.log(`get new access token...`)
         gTokenPairsMap.set(provider, await getAccessToken(
             provider, env))
     }

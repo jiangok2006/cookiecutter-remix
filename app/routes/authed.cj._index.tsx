@@ -1,5 +1,6 @@
+import { Checkbox } from "@mui/material";
 import { json, type ActionFunctionArgs, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
-import { Form, Outlet, useLoaderData } from "@remix-run/react";
+import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import type { Env } from "../libs/orm";
 import { AuthProvider } from "../libs/types";
@@ -32,6 +33,31 @@ type CJAPICategoryResponse = {
     data: [CategoryItem]
 }
 
+type CJAPIProductListItem = {
+    pid: string,
+    productName: string,
+    productNameEn: string,
+    productSku: string,
+    productImage: string,
+    productWeight: string,
+    productType: string,
+    productUnit: string,
+    categoryName: string,
+    listingCount: number,
+    sellPrice: string,
+    remark: string,
+    addMarkStatus: string,
+    createTime: string,
+    isVideo: number,
+    saleStatus: number,
+    listedNum: number,
+    supplierName: string,
+    supplierId: string,
+    categoryId: string,
+    sourceFrom: string,
+    shippingCountryCodes: [string]
+}
+
 type CJAPIProductListResponse = {
     code: number,
     message: string,
@@ -40,30 +66,7 @@ type CJAPIProductListResponse = {
         pageNum: number,
         pageSize: number,
         total: number,
-        list: [{
-            pid: string,
-            productName: string,
-            productNameEn: string,
-            productSku: string,
-            productImage: string,
-            productWeight: string,
-            productType: string,
-            productUnit: string,
-            categoryName: string,
-            listingCount: number,
-            sellPrice: string,
-            remark: string,
-            addMarkStatus: string,
-            createTime: string,
-            isVideo: string,
-            saleStatus: number,
-            listedNum: number,
-            supplierName: string,
-            supplierId: string,
-            categoryId: string,
-            sourceFrom: string,
-            shippingCountryCodes: [string]
-        }]
+        list: [CJAPIProductListItem]
     }
 }
 
@@ -77,8 +80,13 @@ let gFormData: {
 } | undefined = undefined;
 
 function createQueryParams(ret: string, param: string) {
-    ret = ret === "" ? `?` : param === "" ? ret : `${ret}&`
-    return `${ret}${param}`
+    if (ret === "" && param === "")
+        return ""
+    if (ret === "" && param !== "")
+        return `?${param}`
+    if (ret !== "" && param === "")
+        return ret
+    return `${ret}&${param}`
 }
 
 function createTimeString(days: number) {
@@ -88,85 +96,85 @@ function createTimeString(days: number) {
     return encodeURIComponent(ret);
 }
 
-function formToParams(): string {
+function formToParams(): { url: string, hasVideo: boolean } {
     if (!gFormData) {
-        return ""
+        return { url: "", hasVideo: false }
     }
-    const map = new Map<string, string>();
+
+    const formDataMap = new Map<string, string>();
     for (const [key, value] of Object.entries(gFormData)) {
-        //console.log(`${key}: ${value}`);
         if (value) {
-            map.set(key, value.toString());
-            //console.log(`add to map: ${key}: ${value}`);
+            formDataMap.set(key, value.toString());
+            //console.log(`loader add to map: ${key}: ${value}`);
         }
     }
-    if (map.has("product_id"))
-        return `?pid=${map.get("product_id")}`;
+    if (formDataMap.has("product_id"))
+        return { url: `?pid=${formDataMap.get("product_id")}`, hasVideo: formDataMap.has("has_video") };
 
-    if (map.has("product_sku"))
-        return `?productSku=${map.get("product_sku")}`;
+    if (formDataMap.has("product_sku"))
+        return { url: `?productSku=${formDataMap.get("product_sku")}`, hasVideo: formDataMap.has("has_video") };
 
 
     let ret: string = "";
 
-    if (map.has("min_price"))
-        ret = createQueryParams(ret, `minPrice=${map.get("min_price")}`);
+    if (formDataMap.has("min_price"))
+        ret = createQueryParams(ret, `minPrice=${formDataMap.get("min_price")}`);
 
-    if (map.has("max_price"))
-        ret = createQueryParams(ret, `maxPrice=${map.get("max_price")}`);
+    if (formDataMap.has("max_price"))
+        ret = createQueryParams(ret, `maxPrice=${formDataMap.get("max_price")}`);
 
-    if (map.has("warehouse_country_code")) {
-        if (map.get("warehouse_country_code") === "all") {
+    if (formDataMap.has("warehouse_country_code")) {
+        if (formDataMap.get("warehouse_country_code") === "all") {
             ret = createQueryParams(ret, ``);
         } else {
-            ret = createQueryParams(ret, `countryCode=${map.get("warehouse_country_code")}`);
+            ret = createQueryParams(ret, `countryCode=${formDataMap.get("warehouse_country_code")}`);
         }
     }
 
-    if (map.has("create_time_from")) {
-        if (map.get("create_time_from") === "all") {
+    if (formDataMap.has("create_time_from")) {
+        if (formDataMap.get("create_time_from") === "all") {
             ret = createQueryParams(ret, ``);
         }
-        else if (map.get("create_time_from") === "in_7_days") {
+        else if (formDataMap.get("create_time_from") === "in_7_days") {
             ret = createQueryParams(ret, `createTimeFrom=${createTimeString(7)}`);
         }
-        else if (map.get("create_time_from") === "in_30_days") {
+        else if (formDataMap.get("create_time_from") === "in_30_days") {
             ret = createQueryParams(ret, `createTimeFrom=${createTimeString(30)}`);
         }
-        else if (map.get("create_time_from") === "in_90_days") {
+        else if (formDataMap.get("create_time_from") === "in_90_days") {
             ret = createQueryParams(ret, `createTimeFrom=${createTimeString(90)}`);
         } else {
-            throw new Error(`create_time_from: ${map.get("create_time_from")} is not supported`);
+            throw new Error(`create_time_from: ${formDataMap.get("create_time_from")} is not supported`);
         }
     }
 
-    if (map.has("product_type")) {
-        if (map.get("product_type") === "all") {
+    if (formDataMap.has("product_type")) {
+        if (formDataMap.get("product_type") === "all") {
             ret = createQueryParams(ret, ``);
         }
-        else if (map.get("product_type") === "SUPPLIER_SHIPPED_PRODUCT") {
-            ret = createQueryParams(ret, `productType=${map.get("product_type")}`);
+        else if (formDataMap.get("product_type") === "SUPPLIER_SHIPPED_PRODUCT") {
+            ret = createQueryParams(ret, `productType=${formDataMap.get("product_type")}`);
         } else {
-            throw new Error(`product_type: ${map.get("product_type")} is not supported`);
+            throw new Error(`product_type: ${formDataMap.get("product_type")} is not supported`);
         }
     }
 
-    if (map.has("categoryRadio")) {
-        if (map.get("categoryRadio") === "all") {
+    if (formDataMap.has("categoryRadio")) {
+        if (formDataMap.get("categoryRadio") === "all") {
             ret = createQueryParams(ret, ``);
         } else {
-            ret = createQueryParams(ret, `categoryId=${map.get("categoryRadio")}`);
+            ret = createQueryParams(ret, `categoryId=${formDataMap.get("categoryRadio")}`);
         }
     }
 
-    if (map.has("page_num"))
-        ret = createQueryParams(ret, `pageNum=${map.get("page_num")}`);
+    if (formDataMap.has("page_num"))
+        ret = createQueryParams(ret, `pageNum=${formDataMap.get("page_num")}`);
 
-    if (map.has("page_size"))
-        ret = createQueryParams(ret, `pageSize=${map.get("page_size")}`);
+    if (formDataMap.has("page_size"))
+        ret = createQueryParams(ret, `pageSize=${formDataMap.get("page_size")}`);
 
     console.log(`formToParams: ${ret}`);
-    return ret;
+    return { url: ret, hasVideo: formDataMap.has("has_video") };
 }
 
 async function call<T>(url: string, token: string): Promise<T> {
@@ -203,16 +211,18 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             env.cookie_secret)
             .isAuthenticated(request, { failureRedirect: '/login' })
     }
-
+    let { url, hasVideo } = formToParams() // this function set gFormDataMap.
     return json({
         categories: await getCategories(env),
-        products: await getProducts(env, formToParams()),
+        products: await getProducts(env, url),
+        hasVideo: hasVideo, // pass from server to client
     });
 };
 
 
 export let action = async ({ request, context }: ActionFunctionArgs) => {
     let env = context.env as Env;
+
     if (env.disable_auth === 'false') {
         await auth(
             env.DB,
@@ -250,11 +260,11 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
         let bg = (index % 2 == 0) ? "form-check bg-slate-100 p-3" : "form-check bg-slate-200 p-3"
         return (
             <div key={`${category.categoryFirstId}_${index}`} >
-                <div className={bg} key={category.categoryFirstId}
+                <div className={bg} key={category.categoryFirstId + '_a'}
                     onClick={toggle(category.categoryFirstId)}>
                     {category.categoryFirstName}
                 </div>
-                <div key={category.categoryFirstId}>
+                <div key={category.categoryFirstId + '_b'}>
                     {category.categoryFirstList && collapse.get(category.categoryFirstId) && (
                         (
                             <div className="ml-4" >
@@ -278,14 +288,15 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
             </div>
         )
     }) : null;
-    return radios?.concat(<div key="all"><input type="radio" name="categoryRadio" key="all" value="all" />all</div>);
+    return radios?.concat(<div key="all"><input type="radio" checked={true} onChange={() => { }} name="categoryRadio" key="all" value="all" />all</div>);
 }
 
-function BuildProductTable(products: CJAPIProductListResponse) {
+function BuildProductTable(products: CJAPIProductListResponse, shouldHaveVideo: boolean = false) {
     const [sortedField, setSortedField] = useState<string | null>(null);
     const [isAscending, setIsAscending] = useState(false);
 
     if (!products || !products.data) {
+        console.log(`BuildProductTable: products is null`);
         return null;
     }
 
@@ -323,6 +334,9 @@ function BuildProductTable(products: CJAPIProductListResponse) {
                             Shipping Country Codes
                         </th>
                         <th>
+                            Has Video
+                        </th>
+                        <th>
                             <button type="button" onClick={() => {
                                 setSortedField('listingCount');
                                 setIsAscending(!isAscending)
@@ -333,12 +347,19 @@ function BuildProductTable(products: CJAPIProductListResponse) {
                     </tr>
                 </thead>
                 <tbody>
-                    {sortedProducts.map((product: any, index: number) => {
-                        if (product.shippingCountryCodes.indexOf('CN') < 0 && product.shippingCountryCodes.indexOf('US') < 0) return null;
+                    {sortedProducts.map((product: CJAPIProductListItem, index: number) => {
+                        if (product.shippingCountryCodes.indexOf('CN') < 0 &&
+                            product.shippingCountryCodes.indexOf('US') < 0)
+                            return null;
+
+                        if (shouldHaveVideo && !product.isVideo) {
+                            return null;
+                        }
+
                         let cjUrl = `https://cjdropshipping.com/product/${product.productNameEn.toLowerCase().replace(' ', '-')}-p-${product.pid}.html`;
                         let bg = index % 2 === 0 ? "bg-slate-100 p-3" : "bg-slate-200 p-3";
                         return (
-                            <tr key={`${product.productId}_${index}`}>
+                            <tr key={`${product.pid}_${index}`}>
                                 <td className={bg}>
                                     <a href={cjUrl} target="_blank" rel="noreferrer">
                                         <img src={product.productImage} width={300}
@@ -349,6 +370,7 @@ function BuildProductTable(products: CJAPIProductListResponse) {
                                 <td className={bg} style={{ width: "20%" }}>{product.productNameEn}</td>
                                 <td className={bg}>{product.sellPrice}</td>
                                 <td className={bg}>{product.shippingCountryCodes.join(',')}</td>
+                                <td className={bg}>{product.isVideo}</td>
                                 <td className={bg}>{product.listedNum}</td>
                             </tr>
                         );
@@ -361,7 +383,7 @@ function BuildProductTable(products: CJAPIProductListResponse) {
 }
 
 export default function ProductList() {
-    let { categories, products } = useLoaderData<typeof loader>();
+    let { categories, products, hasVideo } = useLoaderData<typeof loader>();
 
     return (
         <>
@@ -421,12 +443,15 @@ export default function ProductList() {
                         &nbsp;&nbsp;
                         <label htmlFor="page_size">page size (less than 200):</label>
                         <input type="text" name="page_size" key="page_size" className="bg-gray-100" />
+
+                        &nbsp;&nbsp;
+                        <label htmlFor="has_video">has video:</label>
+                        <Checkbox name="has_video" key="has_video" className="bg-gray-100" />
                     </div>
                 </div>
                 <button type="submit" className="bg-gray-300 p-3" >search</button>
             </Form>
-            {BuildProductTable(products)}
-            <Outlet />
+            {BuildProductTable(products, hasVideo)}
         </>
     );
 }
