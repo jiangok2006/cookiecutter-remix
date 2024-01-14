@@ -247,6 +247,7 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
             .isAuthenticated(request, { failureRedirect: '/login' })
 
         if (!user) {
+            console.log(`action: user is null, call auth().authenticate()`);
             await auth(
                 env.DB,
                 env.magic_link_secret,
