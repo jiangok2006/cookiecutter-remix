@@ -4,7 +4,7 @@ import { Buffer } from 'node:buffer';
 import type { Env } from "../libs/orm";
 import { AuthProvider } from "../libs/types";
 import { gTokenPairsMap } from "../routes/authed.cj._index";
-import { getSecondsFromNow } from "../routes/ebay_consent_accepted";
+import { exchangeOrRefreshAccessToken, getSecondsFromNow } from "../routes/ebay_consent_accepted";
 import type { AccessToken } from "../schema/access_token";
 import { access_tokens } from "../schema/access_token";
 
@@ -152,26 +152,18 @@ async function refreshEbayTokens(
 ): Promise<TokenPair | null> {
     // https://developer.ebay.com/api-docs/static/oauth-refresh-token-request.html
 
-    let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
-    let encodedSecret = encodeBase64(secret);
+    let body = new URLSearchParams();
+    body.append('grant_type', 'refresh_token');
+    body.append('refresh_token', refreshToken!);
+    body.append('scope', env.ebay_scopes);
+    const resp = await exchangeOrRefreshAccessToken(env, body);
 
-    let resp = await fetch(env.ebay_auth_host, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-            'Authorization': `Basic ${encodedSecret}`
-        },
-        body: JSON.stringify({
-            grant_type: 'refresh_token',
-            refresh_token: refreshToken,
-            scope: env.ebay_scopes,
-        })
-    })
     if (!resp.ok) {
         throw new Error(`${resp.status}: ${resp.statusText}`)
     }
     let respJson = await resp.json<EbayRefreshTokenAPIResponse>()
-    return await saveToDb(env.DB, AuthProvider.ebay,
+    return await saveToDb(env.DB,
+        AuthProvider.ebay,
         respJson.access_token,
         respJson.expires_in,
         respJson.access_token,

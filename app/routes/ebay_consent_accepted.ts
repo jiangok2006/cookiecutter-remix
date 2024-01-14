@@ -16,6 +16,20 @@ export function getSecondsFromNow(seconds: number): Date {
 
 const gProvider = AuthProvider.ebay;
 
+export async function exchangeOrRefreshAccessToken(env: Env, body: URLSearchParams): Promise<Response> {
+    let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
+    let encodedSecret = encodeBase64(secret);
+
+    return await fetch(`${env.ebay_host}identity/v1/oauth2/token`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': `Basic ${encodedSecret}`,
+        },
+        body: body,
+    });
+}
+
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     console.log(`consent is accepted. request.url: ${request.url}`);
     let env = context.env as Env;
@@ -28,22 +42,12 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     }
 
     try {
-        let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
-        let encodedSecret = encodeBase64(secret);
-
         let body = new URLSearchParams();
         body.append('grant_type', 'authorization_code');
         body.append('code', authCode!);
         body.append('redirect_uri', env.ebay_redirect_uri!);
 
-        const response = await fetch(`${env.ebay_host}identity/v1/oauth2/token`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'Authorization': `Basic ${encodedSecret}`,
-            },
-            body: body,
-        });
+        const response = await exchangeOrRefreshAccessToken(env, body);
 
         if (!response.ok) {
             throw new Error(`${response.status}: ${response.statusText}`)
@@ -53,7 +57,8 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
-        await saveToDb(env.DB, gProvider,
+        await saveToDb(env.DB,
+            gProvider,
             resp.access_token,
             resp.expires_in,
             resp.refresh_token,
