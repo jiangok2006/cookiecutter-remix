@@ -96,23 +96,35 @@ function createTimeString(days: number) {
     return encodeURIComponent(ret);
 }
 
-function formToParams(): { url: string, hasVideo: boolean } {
+function formToParams(): {
+    url: string,
+    hasVideo: boolean,
+    categoryRadio: string | null
+} {
     if (!gFormData) {
-        return { url: "", hasVideo: false }
+        return { url: "", hasVideo: false, categoryRadio: null }
     }
 
     const formDataMap = new Map<string, string>();
     for (const [key, value] of Object.entries(gFormData)) {
         if (value) {
             formDataMap.set(key, value.toString());
-            //console.log(`loader add to map: ${key}: ${value}`);
+            console.log(`loader add to map: ${key}: ${value}`);
         }
     }
     if (formDataMap.has("product_id"))
-        return { url: `?pid=${formDataMap.get("product_id")}`, hasVideo: formDataMap.has("has_video") };
+        return {
+            url: `?pid=${formDataMap.get("product_id")}`,
+            hasVideo: formDataMap.has("has_video"),
+            categoryRadio: formDataMap.get("categoryRadio") ?? null
+        };
 
     if (formDataMap.has("product_sku"))
-        return { url: `?productSku=${formDataMap.get("product_sku")}`, hasVideo: formDataMap.has("has_video") };
+        return {
+            url: `?productSku=${formDataMap.get("product_sku")}`,
+            hasVideo: formDataMap.has("has_video"),
+            categoryRadio: formDataMap.get("categoryRadio") ?? null
+        };
 
 
     let ret: string = "";
@@ -174,7 +186,11 @@ function formToParams(): { url: string, hasVideo: boolean } {
         ret = createQueryParams(ret, `pageSize=${formDataMap.get("page_size")}`);
 
     console.log(`formToParams: ${ret}`);
-    return { url: ret, hasVideo: formDataMap.has("has_video") };
+    return {
+        url: ret,
+        hasVideo: formDataMap.has("has_video"),
+        categoryRadio: formDataMap.get("categoryRadio") ?? null
+    };
 }
 
 async function call<T>(url: string, token: string): Promise<T> {
@@ -211,11 +227,12 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             env.cookie_secret)
             .isAuthenticated(request, { failureRedirect: '/login' })
     }
-    let { url, hasVideo } = formToParams() // this function set gFormDataMap.
+    let { url, hasVideo, categoryRadio } = formToParams() // this function set gFormDataMap.
     return json({
         categories: await getCategories(env),
         products: await getProducts(env, url),
         hasVideo: hasVideo, // pass from server to client
+        categoryRadio: categoryRadio,
     });
 };
 
@@ -241,9 +258,9 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
     return null;
 }
 
-function BuildCategoryComponent(categories: CategoryItem[]) {
+function BuildCategoryComponent(categories: CategoryItem[], categoryRadio: string | null) {
     const [collapse, setCollapse] = useState(new Map<string, boolean>());
-
+    console.log(`BuildCategoryComponent: ${categoryRadio}`);
     if (!categories) {
         return null;
     }
@@ -275,7 +292,12 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
                                             {firstCategory.categorySecondList && firstCategory.categorySecondList.map((secondCategory: CategorySecondListItem, index: number) => (
                                                 <span key={`${secondCategory.categoryId}_${index}`}>
                                                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                    <input type="radio" name="categoryRadio" value={secondCategory.categoryId} />
+                                                    <input type="radio"
+                                                        name="categoryRadio"
+                                                        value={secondCategory.categoryId}
+                                                        onChange={() => { }}
+                                                        defaultChecked={categoryRadio === secondCategory.categoryId}
+                                                    />
                                                     {secondCategory.categoryName}
                                                 </span>
                                             ))}
@@ -288,7 +310,7 @@ function BuildCategoryComponent(categories: CategoryItem[]) {
             </div>
         )
     }) : null;
-    return radios?.concat(<div key="all"><input type="radio" checked={true} onChange={() => { }} name="categoryRadio" key="all" value="all" />all</div>);
+    return radios?.concat(<div key="all"><input type="radio" defaultChecked={categoryRadio === null || categoryRadio === 'all'} onChange={() => { }} name="categoryRadio" key="all" value="all" />all</div>);
 }
 
 function BuildProductTable(products: CJAPIProductListResponse, shouldHaveVideo: boolean = false) {
@@ -383,13 +405,13 @@ function BuildProductTable(products: CJAPIProductListResponse, shouldHaveVideo: 
 }
 
 export default function ProductList() {
-    let { categories, products, hasVideo } = useLoaderData<typeof loader>();
+    let { categories, products, hasVideo, categoryRadio } = useLoaderData<typeof loader>();
 
     return (
         <>
             <Form name="search_form" method="post" navigate={false}>
                 <div style={{ marginBottom: '1rem' }}>
-                    {BuildCategoryComponent(categories.data)}
+                    {BuildCategoryComponent(categories.data, categoryRadio)}
                     <br />
                     <div>
                         <label htmlFor="product_id">Product ID:</label>
