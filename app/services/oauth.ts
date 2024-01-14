@@ -155,7 +155,7 @@ async function refreshEbayTokens(
     let secret = `${env.ebay_client_id}:${env.ebay_client_secret}`
     let encodedSecret = encodeBase64(secret);
 
-    let resp = await fetch(env.google_oauth_host, {
+    let resp = await fetch(env.ebay_auth_host, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -167,11 +167,15 @@ async function refreshEbayTokens(
             scope: env.ebay_scopes,
         })
     })
-        .then(response => response.json<EbayRefreshTokenAPIResponse>())
-
-    return await saveToDb(env.DB, AuthProvider.ebay, null,
-        null, resp.access_token,
-        resp.expires_in)
+    if (!resp.ok) {
+        throw new Error(`${resp.status}: ${resp.statusText}`)
+    }
+    let respJson = await resp.json<EbayRefreshTokenAPIResponse>()
+    return await saveToDb(env.DB, AuthProvider.ebay,
+        respJson.access_token,
+        respJson.expires_in,
+        respJson.access_token,
+        respJson.expires_in)
 }
 
 async function refreshGoogleTokens(
@@ -231,9 +235,9 @@ export async function saveToDb(
                 set: {
                     ...tokens,
                     access_token: sql`coalesce(${tokens.access_token}, excluded.access_token)`,
-                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at}, excluded.access_token_expires_at)`,
+                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at?.getMilliseconds()}, excluded.access_token_expires_at)`,
                     refresh_token: sql`coalesce(${tokens.refresh_token}, excluded.refresh_token)`,
-                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at}, excluded.refresh_token_expires_at)`,
+                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at?.getMilliseconds()}, excluded.refresh_token_expires_at)`,
                 }
             }).returning();
 
@@ -253,6 +257,7 @@ export async function callApi<T>(
     suffix: string,
     apiCall: (url: string, token: string) => Promise<T>): Promise<T> {
     if (!gTokenPairsMap?.get(provider)?.accessToken) {
+        console.log(`get access token...`)
         gTokenPairsMap.set(provider, await getAccessToken(
             provider, env))
     }
@@ -260,9 +265,11 @@ export async function callApi<T>(
     try {
         let resp = await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
         let jresp = JSON.stringify(resp)
-        //console.log(`callApi: ${jresp}`)
-        if (jresp.includes('UNAUTHENTICATED')) {
+        if (jresp.includes('UNAUTHENTICATED')) { // cj
             throw new Error(`UNAUTHENTICATED: ${jresp}`)
+        }
+        if (jresp.includes('Invalid access token')) { // ebay
+            throw new Error(`Invalid access token: ${jresp}`)
         }
         // different auth providers have different error response formats.
         return resp;
@@ -270,10 +277,14 @@ export async function callApi<T>(
         console.log(`callApi failed: ${e}, try to refresh token and retry. It could still fail and you might need to re-oauth to ask more permissions.`)
         if (gTokenPairsMap?.get(provider)?.refreshToken) {
             console.log(`refresh token...`)
-            gTokenPairsMap.set(provider, await refreshAccessToken(
+            let tokenPair = await refreshAccessToken(
                 provider, env,
                 gTokenPairsMap.get(provider)!.refreshToken!,
-            ));
+            )
+            if (!tokenPair) {
+                throw new Error(`refresh token failed: ${e}`)
+            }
+            gTokenPairsMap.set(provider, tokenPair);
 
             return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
         }
