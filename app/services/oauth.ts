@@ -44,8 +44,29 @@ export let getAccessToken = async (
 ): Promise<TokenPair | null> => {
     let filter = eq(access_tokens.provider, provider)
     let rows = await drizzle(env.DB).select().from(access_tokens).where(filter).execute();
+
     if (rows.length == 0) {
         return recreateTokens(provider, env)
+    }
+
+    // ebay does not recommen renewing refresh token.
+    // https://developer.ebay.com/api-docs/static/oauth-refresh-token-request.html
+    // If your refresh token gets revoked (or if it expires), then you must redo the consent-request 
+    // flow in order to get a new access token and refresh token for the associated user.
+
+    // however, https://community.ebay.com/t5/eBay-APIs-Talk-to-your-fellow/How-to-generate-a-new-refresh-token/td-p/33898456 says
+    // I can get a new refresh token everytime when renewing the token.
+
+    // ebay refresh token expires in 18 months. google 6 months.
+    if (rows[0].refresh_token_expires_at! < getSecondsFromNow(0)) {
+        console.log(`now: ${Date.now()}, ${provider} refresh token expired: access_token_expires_at: ${rows[0].access_token_expires_at}, refresh_token_expires_at: ${rows[0].refresh_token_expires_at}`)
+        return recreateTokens(provider, env)
+    }
+
+    let seconds_for_3_days = 60 * 60 * 24 * 3
+    if (rows[0].refresh_token_expires_at! < getSecondsFromNow(seconds_for_3_days)) {
+        console.log(`now: ${Date.now()}, ${provider} refresh token expired: access_token_expires_at: ${rows[0].access_token_expires_at}, refresh_token_expires_at: ${rows[0].refresh_token_expires_at}`)
+        return refreshAccessToken(provider, env, rows[0].refresh_token!)
     }
 
     let row = rows[0] as AccessToken
@@ -277,7 +298,6 @@ export async function callApi<T>(
                 throw new Error(`refresh token failed: ${e}`)
             }
             gTokenPairsMap.set(provider, tokenPair);
-
             return await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
         }
         throw e;
