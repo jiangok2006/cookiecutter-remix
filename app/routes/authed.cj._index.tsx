@@ -90,9 +90,8 @@ function createQueryParams(ret: string, param: string) {
 }
 
 function createTimeString(days: number) {
-    let options = { hour12: false };
     let date = Date.now() - days * 24 * 60 * 60 * 1000
-    let ret = new Date(date).toLocaleString('en-US', options).replace(",", "");
+    let ret = new Date(date).toISOString().substring(0, 19).replace("T", " ")
     return encodeURIComponent(ret);
 }
 
