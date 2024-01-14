@@ -53,10 +53,12 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
-
-        await saveToDb(env.DB, gProvider, resp.access_token,
-            resp.expires_in, resp.refresh_token,
-            resp.refresh_token_expires_in)
+        await saveToDb(env.DB, gProvider,
+            resp.access_token,
+            resp.expires_in,
+            resp.refresh_token,
+            resp.refresh_token_expires_in,
+        )
         return redirect('/authed/ebay');
     } catch (e) {
         throw new Error(`exchanging ebay auth code with tokens failed: ${e}`)
