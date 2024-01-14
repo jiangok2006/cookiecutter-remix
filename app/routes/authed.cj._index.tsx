@@ -239,18 +239,25 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
 
 export let action = async ({ request, context }: ActionFunctionArgs) => {
     let env = context.env as Env;
-
     if (env.disable_auth === 'false') {
-        await auth(
+        let user = await auth(
             env.DB,
             env.magic_link_secret,
             env.cookie_secret)
-            .authenticate('email-link', request,
-                {
-                    successRedirect: '/login',
-                    failureRedirect: '/login',
-                }
-            )
+            .isAuthenticated(request, { failureRedirect: '/login' })
+
+        if (!user) {
+            await auth(
+                env.DB,
+                env.magic_link_secret,
+                env.cookie_secret)
+                .authenticate('email-link', request,
+                    {
+                        successRedirect: '/login',
+                        failureRedirect: '/login',
+                    }
+                )
+        }
     }
 
     const rawFormData = await request.formData();
@@ -260,7 +267,6 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
 
 function BuildCategoryComponent(categories: CategoryItem[], categoryRadio: string | null) {
     const [collapse, setCollapse] = useState(new Map<string, boolean>());
-    console.log(`BuildCategoryComponent: ${categoryRadio}`);
     if (!categories) {
         return null;
     }
