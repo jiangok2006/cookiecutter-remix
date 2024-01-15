@@ -51,15 +51,14 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
-        console.log(`resp: ${JSON.stringify(resp)}`);
-        console.log(`resp.access_token: ${resp.access_token}, resp.expires_in: ${resp.expires_in}, resp.refresh_token: ${resp.refresh_token}`);
+        console.log(`resp: ${JSON.stringify(resp)}`); // google does not return refresh_token !!!
 
         await saveToDb(
             env.DB,
             gProvider,
             resp.access_token,
             resp.expires_in,
-            resp.refresh_token,
+            null,
             null)
 
         return redirect('/authed/google');

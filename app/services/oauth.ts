@@ -261,7 +261,7 @@ export async function saveToDb(
                     ...tokens,
                     access_token: sql`coalesce(${tokens.access_token}, excluded.access_token)`,
                     access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at?.getSeconds()}, excluded.access_token_expires_at)`,
-                    refresh_token: sql`coalesce(${tokens.refresh_token}, excluded.refresh_token)`,
+                    refresh_token: sql`coalesce(${tokens.refresh_token ?? null}, excluded.refresh_token)`, // google does not return refresh token
                     refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at?.getSeconds()}, excluded.refresh_token_expires_at)`,
                 }
             }).returning();
