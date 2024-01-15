@@ -8,9 +8,9 @@ export const sessions = sqliteTable('sessions', {
     uuid: text('uuid').primaryKey(),
     user_id: integer('user_id').notNull(),
     data: text('data', { mode: 'json' }),
-    created_at: integer('created_at', { mode: 'timestamp_ms' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-    updated_at: integer('updated_at', { mode: 'timestamp_ms' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
-    expires_at: integer('expires_at', { mode: 'timestamp_ms' }).notNull(),
+    created_at: integer('created_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+    updated_at: integer('updated_at', { mode: 'timestamp' }).default(sql`CURRENT_TIMESTAMP`).notNull(),
+    expires_at: integer('expires_at', { mode: 'timestamp' }).notNull(),
 });
 
 export type Session = typeof sessions.$inferSelect

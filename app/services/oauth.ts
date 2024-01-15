@@ -80,6 +80,7 @@ export let getAccessToken = async (
         return refreshAccessToken(provider, env, rows[0].refresh_token!)
     }
 
+    console.log(`use existing tokens from db`)
     let row = rows[0] as AccessToken
     return {
         accessToken: row.access_token,
@@ -259,9 +260,9 @@ export async function saveToDb(
                 set: {
                     ...tokens,
                     access_token: sql`coalesce(${tokens.access_token}, excluded.access_token)`,
-                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at?.getMilliseconds()}, excluded.access_token_expires_at)`,
+                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at?.getSeconds()}, excluded.access_token_expires_at)`,
                     refresh_token: sql`coalesce(${tokens.refresh_token}, excluded.refresh_token)`,
-                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at?.getMilliseconds()}, excluded.refresh_token_expires_at)`,
+                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at?.getSeconds()}, excluded.refresh_token_expires_at)`,
                 }
             }).returning();
 

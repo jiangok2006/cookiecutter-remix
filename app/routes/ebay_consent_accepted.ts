@@ -14,6 +14,11 @@ export function getSecondsFromNow(seconds: number): Date {
     return new Date(Date.now() + seconds * 1000);
 }
 
+export function convertSecondsExpiryToDate(seconds: number): number {
+    // getTime() returns milliseconds
+    return Math.round(getSecondsFromNow(seconds).getTime() / 1000)
+}
+
 const gProvider = AuthProvider.ebay;
 
 export async function exchangeOrRefreshAccessToken(env: Env, body: URLSearchParams): Promise<Response> {
