@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/d1";
 import { Buffer } from 'node:buffer';
 import type { Env } from "../libs/orm";
@@ -7,6 +7,7 @@ import { gTokenPairsMap } from "../routes/authed.cj._index";
 import { exchangeOrRefreshAccessToken, getSecondsFromNow } from "../routes/ebay_consent_accepted";
 import type { AccessToken } from "../schema/access_token";
 import { access_tokens } from "../schema/access_token";
+import type { User } from "../schema/user";
 
 
 export type TokenPair = {
@@ -40,14 +41,17 @@ type GoogleRefreshTokenAPIResponse = {
 }
 
 export let getAccessToken = async (
+    user: User,
     provider: AuthProvider, env: Env
 ): Promise<TokenPair | null> => {
-    let filter = eq(access_tokens.provider, provider)
+    let filter = and(
+        eq(access_tokens.email, user.email!),
+        eq(access_tokens.provider, provider))
     let rows = await drizzle(env.DB).select().from(access_tokens).where(filter).execute();
 
     if (rows.length == 0) {
         console.log(`no access token, ask user consent again.`)
-        return recreateTokens(provider, env)
+        return recreateTokens(provider, env, user)
     }
 
     // ebay does not recommen renewing refresh token.
@@ -74,13 +78,13 @@ export let getAccessToken = async (
     if (provider !== AuthProvider.google) {
         if (refresh_token_expires_at < getSecondsFromNow(0)) {
             console.log(`refresh token expired, ask user consent again.`)
-            return recreateTokens(provider, env)
+            return recreateTokens(provider, env, user)
         }
 
         let seconds_for_3_days = 60 * 60 * 24 * 3
         if (refresh_token_expires_at < getSecondsFromNow(seconds_for_3_days)) {
             console.log(`refresh token will expire in 3 days, refresh tokens`)
-            return refreshAccessToken(provider, env, rows[0].refresh_token!)
+            return refreshAccessToken(provider, env, rows[0].refresh_token!, user)
         }
     }
 
@@ -93,11 +97,11 @@ export let getAccessToken = async (
 }
 
 async function recreateTokens(
-    provider: AuthProvider, env: Env
+    provider: AuthProvider, env: Env, user: User
 ): Promise<TokenPair | null> {
     switch (provider) {
         case AuthProvider.cj:
-            return await recreateCJTokens(env);
+            return await recreateCJTokens(env, user);
         case AuthProvider.ebay:
         case AuthProvider.google:
             // ebay and google need oauth consent.
@@ -109,7 +113,7 @@ async function recreateTokens(
 
 
 
-async function recreateCJTokens(env: Env):
+async function recreateCJTokens(env: Env, user: User):
     Promise<TokenPair | null> {
     let resp = await fetch(`${env.cj_host}v1/authentication/getAccessToken`, {
         method: 'POST',
@@ -127,7 +131,7 @@ async function recreateCJTokens(env: Env):
         throw new Error(`failed to get access token: ${resp.message}`)
     }
 
-    return await saveToDb(env.DB, AuthProvider.cj, resp.data.accessToken,
+    return await saveToDb(env.DB, user, AuthProvider.cj, resp.data.accessToken,
         resp.data.accessTokenExpiryDate, resp.data.refreshToken,
         resp.data.refreshTokenExpiryDate)
 }
@@ -137,32 +141,34 @@ export let refreshAccessToken = async (
     provider: AuthProvider,
     env: Env,
     refreshToken: string,
+    user: User
 ): Promise<TokenPair | null> => {
     try {
         switch (provider) {
             case AuthProvider.cj:
                 return await refreshCJTokens(
-                    env, refreshToken);
+                    env, refreshToken, user);
             case AuthProvider.ebay:
                 return await refreshEbayTokens(
-                    env, refreshToken);
+                    env, refreshToken, user);
             case AuthProvider.google:
                 return await refreshGoogleTokens(
-                    env, refreshToken);
+                    env, refreshToken, user);
         }
     } catch (e) {
         console.error(`callApi failed: ${e}`)
 
         // if refresh token stop working
-        return await recreateTokens(
-            provider, env);
+        return await recreateTokens(provider, env, user);
     }
 }
 
 
 async function refreshCJTokens(
     env: Env,
-    refreshToken: string): Promise<TokenPair | null> {
+    refreshToken: string,
+    user: User
+): Promise<TokenPair | null> {
 
     let resp = await fetch(`${env.cj_host}v1/authentication/refreshAccessToken`, {
         method: 'POST',
@@ -175,8 +181,13 @@ async function refreshCJTokens(
     })
         .then(response => response.json<CJAccessTokenAPIResponse>())
 
-    return await saveToDb(env.DB, AuthProvider.cj, resp.data.accessToken,
-        resp.data.accessTokenExpiryDate, resp.data.refreshToken,
+    return await saveToDb(
+        env.DB,
+        user,
+        AuthProvider.cj,
+        resp.data.accessToken,
+        resp.data.accessTokenExpiryDate,
+        resp.data.refreshToken,
         resp.data.refreshTokenExpiryDate)
 }
 
@@ -185,7 +196,7 @@ export function encodeBase64(str: string): string {
 }
 
 async function refreshEbayTokens(
-    env: Env, refreshToken: string
+    env: Env, refreshToken: string, user: User
 ): Promise<TokenPair | null> {
     // https://developer.ebay.com/api-docs/static/oauth-refresh-token-request.html
 
@@ -200,6 +211,7 @@ async function refreshEbayTokens(
     }
     let respJson = await resp.json<EbayRefreshTokenAPIResponse>()
     return await saveToDb(env.DB,
+        user,
         AuthProvider.ebay,
         respJson.access_token,
         respJson.expires_in,
@@ -209,7 +221,7 @@ async function refreshEbayTokens(
 
 // cannot refresh google access token because I don't have refresh token.
 async function refreshGoogleTokens(
-    env: Env, refreshToken: string
+    env: Env, refreshToken: string, user: User
 ): Promise<TokenPair | null> {
     // https://developers.google.com/identity/protocols/oauth2/web-server#offline
     let resp = await fetch(env.google_oauth_host, {
@@ -226,13 +238,19 @@ async function refreshGoogleTokens(
     })
         .then(response => response.json<GoogleRefreshTokenAPIResponse>())
 
-    return await saveToDb(env.DB, AuthProvider.google, null,
-        null, resp.access_token,
-        resp.expires_in)
+    return await saveToDb(
+        env.DB,
+        user,
+        AuthProvider.google,
+        resp.access_token,
+        resp.expires_in,
+        null,
+        null,)
 }
 
 export async function saveToDb(
     db: D1Database,
+    user: User,
     provider: AuthProvider,
     accessToken: string | null,
     accessTokenExpiry: string | number | null,
@@ -252,17 +270,17 @@ export async function saveToDb(
     }
 
     let tokens = {
+        email: user.email!,
         provider: provider,
         access_token: accessToken,
         access_token_expires_at: getExpiresIn(accessTokenExpiry) ?? null,
         refresh_token: refreshToken ?? null, // refreshToken is undefined for google. MUST NOT BE UNDEFINED.
         refresh_token_expires_at: getExpiresIn(refreshTokenExpiry) ?? null,
     }
-    console.log(`saveToDb: ${JSON.stringify(tokens)}`)
     let rows = await drizzle(db).insert(access_tokens).values(tokens)
         .onConflictDoUpdate(
             {
-                target: access_tokens.provider,
+                target: [access_tokens.email, access_tokens.provider],
                 set: {
                     ...tokens,
                     access_token: sql`coalesce(${tokens.access_token}, excluded.access_token)`,
@@ -283,6 +301,7 @@ export async function saveToDb(
 
 export async function callApi<T>(
     env: Env,
+    user: User,
     provider: AuthProvider,
     providerHost: string,
     suffix: string,
@@ -290,7 +309,7 @@ export async function callApi<T>(
     if (!gTokenPairsMap?.get(provider)?.accessToken) {
         console.log(`get access token...`)
         gTokenPairsMap.set(provider, await getAccessToken(
-            provider, env))
+            user, provider, env))
     }
 
     try {

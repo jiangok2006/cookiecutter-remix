@@ -1,5 +1,6 @@
 CREATE TABLE `access_tokens` (
 	`id` integer PRIMARY KEY NOT NULL,
+	`email` text NOT NULL,
 	`provider` text NOT NULL,
 	`access_token` text,
 	`access_token_expires_at` integer,
@@ -25,5 +26,5 @@ CREATE TABLE `users` (
 	`updated_at` integer DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 --> statement-breakpoint
-CREATE UNIQUE INDEX `access_tokens_provider_unique` ON `access_tokens` (`provider`);--> statement-breakpoint
+CREATE UNIQUE INDEX `access_tokens_email_provider_unique` ON `access_tokens` (`email`,`provider`);--> statement-breakpoint
 CREATE UNIQUE INDEX `users_email_unique` ON `users` (`email`);
