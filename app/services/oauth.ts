@@ -236,7 +236,7 @@ export async function saveToDb(
     Promise<TokenPair> {
     function getExpiresIn(expiry: string | number | null): Date | null {
         if (expiry == null) {
-            return null;
+            return null; // google refresh token has no expiry
         }
         // cj uses date string
         if (typeof expiry === 'string') {
