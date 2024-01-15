@@ -60,8 +60,8 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             "ya29.a0AfB_byBF5j-Qn_ToDovTESTzGQG_xhBA0170",
             //resp.expires_in,
             3599,
-            "test",
-            3599)
+            null,
+            null)
 
         return redirect('/authed/google');
     } catch (e) {
