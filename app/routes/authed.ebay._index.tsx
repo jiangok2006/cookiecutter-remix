@@ -35,6 +35,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     }
 
     if (!gTokenPairsMap.get(gProvider) || !gTokenPairsMap.get(gProvider)?.accessToken) {
+        console.log(`ebay getting token pair from db`)
         let tokenPair = await getAccessToken(gProvider, env)
         if (tokenPair) {
             gTokenPairsMap.set(gProvider, tokenPair)
@@ -42,6 +43,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     }
 
     if (!gTokenPairsMap.get(gProvider)) {
+        console.log(`ebay redirecting to consent api`)
         let contentUrl = `${env.ebay_auth_host}oauth2/authorize?client_id=${env.ebay_client_id}&response_type=code&redirect_uri=${env.ebay_redirect_uri}&scope=${env.ebay_scopes}&state=${env.ebay_consent_api_state}`
         return redirect(contentUrl)
     }

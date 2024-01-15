@@ -14,6 +14,11 @@ export function getSecondsFromNow(seconds: number): Date {
     return new Date(Date.now() + seconds * 1000);
 }
 
+export function convertSecondsExpiryToDate(seconds: number): number {
+    // getTime() returns milliseconds
+    return Math.round(getSecondsFromNow(seconds).getTime() / 1000)
+}
+
 const gProvider = AuthProvider.ebay;
 
 export async function exchangeOrRefreshAccessToken(env: Env, body: URLSearchParams): Promise<Response> {
@@ -60,9 +65,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         await saveToDb(env.DB,
             gProvider,
             resp.access_token,
-            getSecondsFromNow(resp.expires_in).getSeconds(),
+            resp.expires_in,
             resp.refresh_token,
-            getSecondsFromNow(resp.refresh_token_expires_in).getSeconds(), // ebay has 560 seconds
+            resp.refresh_token_expires_in,
         )
         return redirect('/authed/ebay');
     } catch (e) {
