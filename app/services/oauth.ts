@@ -296,7 +296,7 @@ export async function callApi<T>(
     try {
         let resp = await apiCall(`${providerHost}${suffix}`, gTokenPairsMap.get(provider)!.accessToken!)
         let jresp = JSON.stringify(resp)
-        if (jresp.includes('UNAUTHENTICATED')) { // cj
+        if (jresp.includes('UNAUTHENTICATED')) { // cj or google
             throw new Error(`UNAUTHENTICATED: ${jresp}`)
         }
         if (jresp.includes('Invalid access token')) { // ebay
