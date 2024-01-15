@@ -81,7 +81,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         return redirect(consentUrl)
     }
 
-    return json({ drivers: await listDrives(env) })
+    return json({ drivers: await listFiles(env) })
 };
 
 function BuildGoogleHeader(token: string): { headers: any } {
@@ -93,15 +93,15 @@ function BuildGoogleHeader(token: string): { headers: any } {
     }
 }
 
-async function call<T,>(url: string, token: string): Promise<T> {
+async function call<T>(url: string, token: string): Promise<T> {
     return await fetch(url, BuildGoogleHeader(token))
         .then(response => response.json<T>())
 }
 
-async function listDrives(env: Env): Promise<GoogleListDrivesResponse> {
+async function listFiles(env: Env): Promise<GoogleListDrivesResponse> {
     return await callApi<GoogleListDrivesResponse>(
         env, gProvider, env.google_host,
-        'drive/v3/drives',
+        '/drive/v3/files',
         call<GoogleListDrivesResponse>);
 }
 
