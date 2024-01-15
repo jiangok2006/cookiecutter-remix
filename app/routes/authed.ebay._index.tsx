@@ -2,6 +2,7 @@ import { json, redirect, type LoaderFunction, type LoaderFunctionArgs } from "@r
 import { useLoaderData } from "@remix-run/react";
 import type { Env } from "../libs/orm";
 import { AuthProvider } from "../libs/types";
+import type { User } from "../schema/user";
 import { auth } from "../services/auth.server";
 import { callApi, getAccessToken } from "../services/oauth";
 import { gTokenPairsMap } from "./authed.cj._index";
@@ -26,17 +27,20 @@ type SearchProductsResponse = {
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
+    let user: User | null = null
     if (env.disable_auth === 'false') {
-        await auth(
+        user = await auth(
             env.DB,
             env.magic_link_secret,
             env.cookie_secret)
             .isAuthenticated(request, { failureRedirect: '/login' })
+    } else {
+        user = { email: env.cj_user_name } as User
     }
 
     if (!gTokenPairsMap.get(gProvider) || !gTokenPairsMap.get(gProvider)?.accessToken) {
         console.log(`ebay getting token pair from db`)
-        let tokenPair = await getAccessToken(gProvider, env)
+        let tokenPair = await getAccessToken(user, gProvider, env)
         if (tokenPair) {
             gTokenPairsMap.set(gProvider, tokenPair)
         }

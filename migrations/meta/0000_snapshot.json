@@ -1,7 +1,7 @@
 {
   "version": "5",
   "dialect": "sqlite",
-  "id": "d7605ae3-381d-4e75-9373-da2af01f4b66",
+  "id": "038ed019-2935-44bc-a83d-8a1e155e599d",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "access_tokens": {
@@ -11,6 +11,13 @@
           "name": "id",
           "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -67,9 +74,10 @@
         }
       },
       "indexes": {
-        "access_tokens_provider_unique": {
-          "name": "access_tokens_provider_unique",
+        "access_tokens_email_provider_unique": {
+          "name": "access_tokens_email_provider_unique",
           "columns": [
+            "email",
             "provider"
           ],
           "isUnique": true

@@ -4,6 +4,7 @@ import { Form, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import type { Env } from "../libs/orm";
 import { AuthProvider } from "../libs/types";
+import type { User } from "../schema/user";
 import { auth } from "../services/auth.server";
 import { callApi, type TokenPair } from "../services/oauth";
 
@@ -206,30 +207,34 @@ function BuildCJHeader(token: string) {
     }
 }
 
-async function getCategories(env: Env): Promise<CJAPICategoryResponse> {
+async function getCategories(env: Env, user: User): Promise<CJAPICategoryResponse> {
     return await callApi<CJAPICategoryResponse>(
-        env, gProvider, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
+        env, user, gProvider, env.cj_host, `v1/product/getCategory`, call<CJAPICategoryResponse>);
 }
 
-async function getProducts(env: Env, suffix: string) {
+async function getProducts(env: Env, suffix: string, user: User) {
     return await callApi<CJAPIProductListResponse>(
-        env, gProvider, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
+        env, user, gProvider, env.cj_host, `v1/product/list${suffix}`, call<CJAPIProductListResponse>);
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     let env = context.env as Env;
 
+    let user: User | null = null
     if (env.disable_auth === 'false') {
-        await auth(
+        user = await auth(
             env.DB,
             env.magic_link_secret,
             env.cookie_secret)
             .isAuthenticated(request, { failureRedirect: '/login' })
+    } else {
+        user = { email: env.cj_user_name } as User
     }
+
     let { url, hasVideo, categoryRadio } = formToParams() // this function set gFormDataMap.
     return json({
-        categories: await getCategories(env),
-        products: await getProducts(env, url),
+        categories: await getCategories(env, user),
+        products: await getProducts(env, url, user),
         hasVideo: hasVideo, // pass from server to client
         categoryRadio: categoryRadio,
     });
@@ -238,8 +243,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
 
 export let action = async ({ request, context }: ActionFunctionArgs) => {
     let env = context.env as Env;
+    let user: User | null = null
     if (env.disable_auth === 'false') {
-        let user = await auth(
+        user = await auth(
             env.DB,
             env.magic_link_secret,
             env.cookie_secret)
@@ -258,6 +264,8 @@ export let action = async ({ request, context }: ActionFunctionArgs) => {
                     }
                 )
         }
+    } else {
+        user = { email: env.cj_user_name } as User
     }
 
     const rawFormData = await request.formData();
