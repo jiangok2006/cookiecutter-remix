@@ -52,6 +52,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
         console.log(`resp: ${JSON.stringify(resp)}`);
+        console.log(`resp.access_token: ${resp.access_token}, resp.expires_in: ${resp.expires_in}, resp.refresh_token: ${resp.refresh_token}`);
 
         await saveToDb(
             env.DB,
