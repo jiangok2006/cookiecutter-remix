@@ -5,19 +5,24 @@ import { saveToDb } from "../services/oauth";
 
 const gProvider = AuthProvider.google;
 
-type GoogleTokenResponse = {
+// refresh_token could be null for google
+// Refresh tokens are valid until the user revokes access.
+// https://developers.google.com/identity/protocols/oauth2/web-server#sample-oauth-2.0-server-response
+// refresh_token is only provided on the first authorization from the user. 
+// Subsequent authorizations, such as the kind you make while testing an OAuth2 integration, will not return the refresh_token again
+// https://stackoverflow.com/questions/10827920/not-receiving-google-oauth-refresh-token
+export type GoogleTokenResponse = {
     access_token: string;
     expires_in: number;
     scope: string;
     token_type: string;
-    refresh_token: string | null; // https://stackoverflow.com/questions/10827920/not-receiving-google-oauth-refresh-token
+    refresh_token: string | null;
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
     console.log(`consent is accepted. request.url: ${request.url}`);
     let env = context.env as Env;
     const url = new URL(request.url);
-    console.log(`url: ${url}`);
     const state = url.searchParams.get("state");
     const authCode = url.searchParams.get("code");
 
@@ -26,6 +31,8 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     }
 
     try {
+        // Step 3: Google prompts user for consent
+        // https://developers.google.com/identity/protocols/oauth2/web-server#userconsentprompt
         // https://developers.google.com/identity/protocols/oauth2/web-server#exchange-authorization-code
         let params = new URLSearchParams();
         params.append('client_id', env.google_client_id!);
@@ -35,7 +42,6 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         params.append('redirect_uri', env.google_redirect_uri!);
 
         let url = `${env.google_oauth_host}?${params.toString()}`
-        console.log(`url2: ${url}`);
         const response = await fetch(url,
             {
                 method: 'POST',
@@ -59,7 +65,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             resp.access_token,
             resp.expires_in,
             resp.refresh_token,
-            3599) // cannot be null!!!
+            null)
 
         return redirect('/authed/google');
     } catch (e) {

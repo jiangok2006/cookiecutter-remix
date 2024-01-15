@@ -63,21 +63,25 @@ export let getAccessToken = async (
     let access_token_expires_at = rows[0].access_token_expires_at!
     let refresh_token_expires_at = rows[0].refresh_token_expires_at!
 
-    console.log(`now: ${Date.now()}, ${provider} 
+    console.log(`now: ${new Date(Date.now()).toISOString()}, ${provider} 
     refresh token expired: access_token_expires_at: 
     ${access_token_expires_at}, 
+    refresh_token: 
+    ${rows[0].refresh_token},
     refresh_token_expires_at: 
     ${refresh_token_expires_at}`)
 
-    if (refresh_token_expires_at < getSecondsFromNow(0)) {
-        console.log(`refresh token expired, ask user consent again.`)
-        return recreateTokens(provider, env)
-    }
+    if (provider !== AuthProvider.google) {
+        if (refresh_token_expires_at < getSecondsFromNow(0)) {
+            console.log(`refresh token expired, ask user consent again.`)
+            return recreateTokens(provider, env)
+        }
 
-    let seconds_for_3_days = 60 * 60 * 24 * 3
-    if (refresh_token_expires_at < getSecondsFromNow(seconds_for_3_days)) {
-        console.log(`refresh token will expire in 3 days, refresh tokens`)
-        return refreshAccessToken(provider, env, rows[0].refresh_token!)
+        let seconds_for_3_days = 60 * 60 * 24 * 3
+        if (refresh_token_expires_at < getSecondsFromNow(seconds_for_3_days)) {
+            console.log(`refresh token will expire in 3 days, refresh tokens`)
+            return refreshAccessToken(provider, env, rows[0].refresh_token!)
+        }
     }
 
     console.log(`use existing tokens from db`)
@@ -203,6 +207,7 @@ async function refreshEbayTokens(
         respJson.expires_in)
 }
 
+// cannot refresh google access token because I don't have refresh token.
 async function refreshGoogleTokens(
     env: Env, refreshToken: string
 ): Promise<TokenPair | null> {
@@ -249,9 +254,9 @@ export async function saveToDb(
     let tokens = {
         provider: provider,
         access_token: accessToken,
-        access_token_expires_at: getExpiresIn(accessTokenExpiry),
-        refresh_token: refreshToken,
-        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry),
+        access_token_expires_at: getExpiresIn(accessTokenExpiry) ?? null,
+        refresh_token: refreshToken ?? null, // refreshToken is undefined for google. MUST NOT BE UNDEFINED.
+        refresh_token_expires_at: getExpiresIn(refreshTokenExpiry) ?? null,
     }
     console.log(`saveToDb: ${JSON.stringify(tokens)}`)
     let rows = await drizzle(db).insert(access_tokens).values(tokens)
@@ -261,9 +266,9 @@ export async function saveToDb(
                 set: {
                     ...tokens,
                     access_token: sql`coalesce(${tokens.access_token}, excluded.access_token)`,
-                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at?.getSeconds()}, excluded.access_token_expires_at)`,
-                    refresh_token: sql`coalesce(${tokens.refresh_token ?? null}, excluded.refresh_token)`, // google does not return refresh token
-                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at?.getSeconds()}, excluded.refresh_token_expires_at)`,
+                    access_token_expires_at: sql`coalesce(${tokens.access_token_expires_at ? Math.floor(tokens.access_token_expires_at.getTime() / 1000) : null}, excluded.access_token_expires_at)`,
+                    refresh_token: sql`coalesce(${tokens.refresh_token}, excluded.refresh_token)`, // google does not return refresh token
+                    refresh_token_expires_at: sql`coalesce(${tokens.refresh_token_expires_at ? Math.floor(tokens.refresh_token_expires_at.getTime() / 1000) : null}, excluded.refresh_token_expires_at)`,
                 }
             }).returning();
 
