@@ -65,9 +65,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         await saveToDb(env.DB,
             gProvider,
             resp.access_token,
-            resp.expires_in,
+            getSecondsFromNow(resp.expires_in).getSeconds(),
             resp.refresh_token,
-            resp.refresh_token_expires_in,
+            getSecondsFromNow(resp.refresh_token_expires_in).getSeconds(), // ebay has 560 seconds
         )
         return redirect('/authed/ebay');
     } catch (e) {
