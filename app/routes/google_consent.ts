@@ -56,11 +56,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         await saveToDb(
             env.DB,
             gProvider,
-            //            resp.access_token,
-            "ya29.a0AfB_byBF5j-Qn_ToDovTESTzGQG_xhBA0170",
-            //resp.expires_in,
-            3599,
-            null,
+            resp.access_token,
+            resp.expires_in,
+            resp.refresh_token,
             3599) // cannot be null!!!
 
         return redirect('/authed/google');
