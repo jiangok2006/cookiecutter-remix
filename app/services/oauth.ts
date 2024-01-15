@@ -253,6 +253,7 @@ export async function saveToDb(
         refresh_token: refreshToken,
         refresh_token_expires_at: getExpiresIn(refreshTokenExpiry),
     }
+    console.log(`saveToDb: ${JSON.stringify(tokens)}`)
     let rows = await drizzle(db).insert(access_tokens).values(tokens)
         .onConflictDoUpdate(
             {
