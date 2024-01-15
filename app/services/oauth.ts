@@ -46,6 +46,7 @@ export let getAccessToken = async (
     let rows = await drizzle(env.DB).select().from(access_tokens).where(filter).execute();
 
     if (rows.length == 0) {
+        console.log(`no access token, ask user consent again.`)
         return recreateTokens(provider, env)
     }
 
@@ -58,14 +59,24 @@ export let getAccessToken = async (
     // I can get a new refresh token everytime when renewing the token.
 
     // ebay refresh token expires in 18 months. google 6 months.
-    if (rows[0].refresh_token_expires_at! < getSecondsFromNow(0)) {
-        console.log(`now: ${Date.now()}, ${provider} refresh token expired: access_token_expires_at: ${rows[0].access_token_expires_at}, refresh_token_expires_at: ${rows[0].refresh_token_expires_at}`)
+
+    let access_token_expires_at = rows[0].access_token_expires_at!
+    let refresh_token_expires_at = rows[0].refresh_token_expires_at!
+
+    console.log(`now: ${Date.now()}, ${provider} 
+    refresh token expired: access_token_expires_at: 
+    ${access_token_expires_at}, 
+    refresh_token_expires_at: 
+    ${refresh_token_expires_at}`)
+
+    if (refresh_token_expires_at < getSecondsFromNow(0)) {
+        console.log(`refresh token expired, ask user consent again.`)
         return recreateTokens(provider, env)
     }
 
     let seconds_for_3_days = 60 * 60 * 24 * 3
-    if (rows[0].refresh_token_expires_at! < getSecondsFromNow(seconds_for_3_days)) {
-        console.log(`now: ${Date.now()}, ${provider} refresh token expired: access_token_expires_at: ${rows[0].access_token_expires_at}, refresh_token_expires_at: ${rows[0].refresh_token_expires_at}`)
+    if (refresh_token_expires_at < getSecondsFromNow(seconds_for_3_days)) {
+        console.log(`refresh token will expire in 3 days, refresh tokens`)
         return refreshAccessToken(provider, env, rows[0].refresh_token!)
     }
 
