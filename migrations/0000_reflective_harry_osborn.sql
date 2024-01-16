@@ -2,6 +2,7 @@ CREATE TABLE `access_tokens` (
 	`id` integer PRIMARY KEY NOT NULL,
 	`email` text NOT NULL,
 	`provider` text NOT NULL,
+	`state` text,
 	`access_token` text,
 	`access_token_expires_at` integer,
 	`refresh_token` text,

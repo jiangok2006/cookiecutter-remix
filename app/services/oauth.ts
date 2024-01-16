@@ -12,7 +12,8 @@ import type { User } from "../schema/user";
 
 export type TokenPair = {
     accessToken: string | null,
-    refreshToken: string | null
+    refreshToken: string | null,
+    state: string | null,
 }
 
 type CJAccessTokenAPIResponse = {
@@ -92,7 +93,8 @@ export let getAccessToken = async (
     let row = rows[0] as AccessToken
     return {
         accessToken: row.access_token,
-        refreshToken: row.refresh_token
+        refreshToken: row.refresh_token,
+        state: row.state,
     }
 }
 
@@ -294,7 +296,8 @@ export async function saveToDb(
 
     return {
         accessToken: row.access_token,
-        refreshToken: row.refresh_token
+        refreshToken: row.refresh_token,
+        state: row.state,
     }
 }
 

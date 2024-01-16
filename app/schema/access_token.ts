@@ -9,6 +9,7 @@ export const access_tokens = sqliteTable('access_tokens', {
     id: integer('id').primaryKey(),
     email: text('email').notNull(),
     provider: text('provider').notNull(), // cj, ebay, google
+    state: text('state'), // ebay, google has this field
     access_token: text('access_token'),
     access_token_expires_at: integer('access_token_expires_at', { mode: 'timestamp' }),
     refresh_token: text('refresh_token'), // google has no this field for subsequent requests after the first.
