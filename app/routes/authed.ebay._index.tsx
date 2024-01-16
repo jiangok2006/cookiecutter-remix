@@ -46,7 +46,8 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     if (!gTokenPairsMap.get(gProvider) || !gTokenPairsMap.get(gProvider)?.accessToken) {
         console.log(`ebay getting token pair from db`)
         tokenPair = await getAccessToken(user, gProvider, env)
-        if (tokenPair?.accessToken) {
+        if (tokenPair?.accessToken && tokenPair?.accessTokenExpiryDate &&
+            new Date(tokenPair.accessTokenExpiryDate) > new Date(Date.now())) {
             gTokenPairsMap.set(gProvider, tokenPair)
         }
     }

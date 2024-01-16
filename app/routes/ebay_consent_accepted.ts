@@ -39,7 +39,6 @@ export async function exchangeOrRefreshAccessToken(env: Env, body: URLSearchPara
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
-    console.log(`consent is accepted. request.url: ${request.url}`);
     let env = context.env as Env;
     const url = new URL(request.url);
     const state = url.searchParams.get("state");
@@ -67,6 +66,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         }
 
         const resp = await response.json<EbayTokenResponse>();
+        console.log(`resp: ${JSON.stringify(resp)}`);
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
@@ -75,9 +75,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             rows[0],
             gProvider,
             resp.access_token,
-            getSecondsFromNow(resp.expires_in).getSeconds(),
+            resp.expires_in, //getSecondsFromNow().getSeconds(),
             resp.refresh_token,
-            getSecondsFromNow(resp.refresh_token_expires_in).getSeconds(), // ebay has 560 seconds
+            resp.refresh_token_expires_in, //getSecondsFromNow(resp.refresh_token_expires_in).getSeconds(), // ebay has 560 seconds
         )
         return redirect('/authed/ebay');
     } catch (e) {
