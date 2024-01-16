@@ -338,6 +338,7 @@ export async function callApi<T>(
             let tokenPair = await refreshAccessToken(
                 provider, env,
                 gTokenPairsMap.get(provider)!.refreshToken!,
+                user
             )
             if (!tokenPair) {
                 throw new Error(`refresh token failed: ${e}`)
