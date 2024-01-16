@@ -12,7 +12,9 @@ import type { User } from "../schema/user";
 
 export type TokenPair = {
     accessToken: string | null,
+    accessTokenExpiryDate: string | null,
     refreshToken: string | null,
+    refreshTokenExpiryDate: string | null,
     state: string | null,
 }
 
@@ -69,10 +71,8 @@ export let getAccessToken = async (
     let refresh_token_expires_at = rows[0].refresh_token_expires_at!
 
     console.log(`now: ${new Date(Date.now()).toISOString()}, ${provider} 
-    refresh token expired: access_token_expires_at: 
+    access_token_expires_at: 
     ${access_token_expires_at}, 
-    refresh_token: 
-    ${rows[0].refresh_token},
     refresh_token_expires_at: 
     ${refresh_token_expires_at}`)
 
@@ -93,7 +93,9 @@ export let getAccessToken = async (
     let row = rows[0] as AccessToken
     return {
         accessToken: row.access_token,
+        accessTokenExpiryDate: row.access_token_expires_at?.toISOString() ?? null,
         refreshToken: row.refresh_token,
+        refreshTokenExpiryDate: row.refresh_token_expires_at?.toISOString() ?? null,
         state: row.state,
     }
 }
@@ -217,8 +219,8 @@ async function refreshEbayTokens(
         AuthProvider.ebay,
         respJson.access_token,
         respJson.expires_in,
-        respJson.access_token,
-        respJson.expires_in)
+        null,
+        null)
 }
 
 // cannot refresh google access token because I don't have refresh token.
@@ -259,6 +261,7 @@ export async function saveToDb(
     refreshToken: string | null,
     refreshTokenExpiry: string | number | null):
     Promise<TokenPair> {
+
     function getExpiresIn(expiry: string | number | null): Date | null {
         if (expiry == null) {
             return null; // google refresh token has no expiry
@@ -296,7 +299,9 @@ export async function saveToDb(
 
     return {
         accessToken: row.access_token,
+        accessTokenExpiryDate: row.access_token_expires_at?.toISOString() ?? null,
         refreshToken: row.refresh_token,
+        refreshTokenExpiryDate: row.refresh_token_expires_at?.toISOString() ?? null,
         state: row.state,
     }
 }
@@ -333,6 +338,7 @@ export async function callApi<T>(
             let tokenPair = await refreshAccessToken(
                 provider, env,
                 gTokenPairsMap.get(provider)!.refreshToken!,
+                user
             )
             if (!tokenPair) {
                 throw new Error(`refresh token failed: ${e}`)

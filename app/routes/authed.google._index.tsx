@@ -14,6 +14,91 @@ import { gTokenPairsMap } from "./authed.cj._index";
 
 const gProvider = AuthProvider.google;
 
+type GoogleListFilesResponse = {
+    kind: string,
+    incompleteSearch: boolean,
+    files: [
+        {
+            kind: string,
+            id: string,
+            name: string,
+            mimeType: string,
+            starred: boolean,
+            trashed: boolean,
+            explicitlyTrashed: boolean,
+            parents: [string],
+            spaces: [string],
+            version: number,
+            webContentLink: string,
+            webViewLink: string,
+            iconLink: string,
+            hasThumbnail: boolean,
+            thumbnailLink: string,
+            thumbnailVersion: number,
+            viewedByMe: boolean,
+            viewedByMeTime: string,
+            createdTime: string,
+            modifiedTime: string,
+            modifiedByMeTime: string,
+            modifiedByMe: boolean,
+            sharedWithMeTime: string,
+            sharingUser: {
+                kind: string,
+                displayName: string,
+                photoLink: string,
+                me: boolean,
+                permissionId: string,
+                emailAddress: string
+            },
+            owners: [
+                {
+                    kind: string,
+                    displayName: string,
+                    photoLink: string,
+                    me: boolean,
+                    permissionId: string,
+                    emailAddress: string
+                }
+            ],
+            teamDriveId: string,
+            lastModifyingUser: {
+                kind: string,
+                displayName: string,
+                photoLink: string,
+                me: boolean,
+                permissionId: string,
+                emailAddress: string
+            },
+            shared: boolean,
+            ownedByMe: boolean,
+            capabilities: {
+                canAddChildren: boolean,
+                canAddFolderFromAnotherDrive: boolean,
+                canAddMyDriveParent: boolean,
+                canChangeCopyRequiresWriterPermission: boolean,
+                canChangeViewersCanCopyContent: boolean,
+                canComment: boolean,
+                canCopy: boolean,
+                canDelete: boolean,
+                canDeleteChildren: boolean,
+                canDownload: boolean,
+                canEdit: boolean,
+                canListChildren: boolean,
+                canModifyContent: boolean,
+                canMoveChildrenOutOfDrive: boolean,
+                canMoveChildrenOutOfTeamDrive: boolean,
+                canMoveChildrenWithinDrive: boolean,
+                canMoveChildrenWithinTeamDrive: boolean,
+                canMoveItemIntoTeamDrive: boolean,
+                canMoveItemOutOfDrive: boolean,
+                canMoveItemOutOfTeamDrive: boolean,
+                canMoveItemWithinDrive: boolean,
+                canMoveItemWithinTeamDrive: boolean,
+                canMoveTeamDriveItem: boolean,
+            }
+        }]
+}
+
 type GoogleListDrivesResponse = {
     kind: string,
     drives: [
@@ -61,7 +146,8 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
 
     if (!gTokenPairsMap.get(gProvider) || !gTokenPairsMap.get(gProvider)?.accessToken) {
         tokenPair = await getAccessToken(user, gProvider, env)
-        if (tokenPair?.accessToken) {
+        if (tokenPair?.accessToken && tokenPair?.accessTokenExpiryDate &&
+            new Date(tokenPair.accessTokenExpiryDate) > new Date(Date.now())) {
             console.log(`google got token pair from db`)
             gTokenPairsMap.set(gProvider, tokenPair)
         }
@@ -115,7 +201,7 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         return redirect(consentUrl)
     }
 
-    return json({ drivers: await listFiles(env, user) })
+    return json({ resp: await listFiles(env, user) })
 };
 
 function BuildGoogleHeader(token: string): { headers: any } {
@@ -132,19 +218,29 @@ async function call<T>(url: string, token: string): Promise<T> {
         .then(response => response.json<T>())
 }
 
-async function listFiles(env: Env, user: User): Promise<GoogleListDrivesResponse> {
-    return await callApi<GoogleListDrivesResponse>(
+async function listFiles(env: Env, user: User): Promise<GoogleListFilesResponse> {
+    return await callApi<GoogleListFilesResponse>(
         env, user, gProvider, env.google_host,
         '/drive/v3/files',
-        call<GoogleListDrivesResponse>);
+        call<GoogleListFilesResponse>);
 }
 
 export default function Google() {
-    let { drivers } = useLoaderData<typeof loader>();
+    let { resp } = useLoaderData<typeof loader>();
+    console.log(`google resp: ${resp}`)
+    function buildCards(resp: GoogleListFilesResponse) {
+        return resp.files.map((file) => {
+            return (
+                <div className="max-w-sm rounded overflow-hidden shadow-lg" key={file.id}>
+                    <div className="px-6 py-4">
+                        <div className="font-bold text-xl mb-2">{file.name}</div>
+                        <div className="font-bold text-xl mb-2">{file.kind}</div>
+                    </div>
+                </div>)
+        })
+    }
 
     return (<>
-        <div>
-            {JSON.stringify(drivers)}
-        </div>
+        {buildCards(resp)}
     </>)
 }

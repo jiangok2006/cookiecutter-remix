@@ -23,7 +23,6 @@ export type GoogleTokenResponse = {
 }
 
 export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionArgs) => {
-    console.log(`consent is accepted. request.url: ${request.url}`);
     let env = context.env as Env;
     const url = new URL(request.url);
     const state = url.searchParams.get("state");
