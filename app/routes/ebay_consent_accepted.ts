@@ -1,6 +1,9 @@
 import { redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
+import { and, eq } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
 import type { Env } from "../libs/orm";
 import { AuthProvider } from "../libs/types";
+import { access_tokens } from "../schema/access_token";
 import { encodeBase64, saveToDb } from "../services/oauth";
 
 type EbayTokenResponse = {
@@ -42,7 +45,12 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
     const state = url.searchParams.get("state");
     const authCode = url.searchParams.get("code");
 
-    if (state !== env.ebay_consent_api_state) {
+    let filter = and(
+        eq(access_tokens.state, state!),
+        eq(access_tokens.provider, gProvider))
+    let rows = await drizzle(env.DB).select().from(access_tokens).where(filter).execute();
+
+    if (state !== rows[0].state) {
         throw new Error(`consent is accepted, but state is not matched. state: ${state}`)
     }
 
@@ -62,7 +70,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         if (!resp.access_token) {
             throw new Error(`getting token failed: ${JSON.stringify(resp)}`);
         }
+
         await saveToDb(env.DB,
+            rows[0],
             gProvider,
             resp.access_token,
             getSecondsFromNow(resp.expires_in).getSeconds(),

@@ -1,12 +1,16 @@
 import { json, redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import { sql } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/d1";
+import { v4 as uuidv4 } from 'uuid';
 import type { Env } from "../libs/orm";
 import { AuthProvider } from "../libs/types";
+import { access_tokens } from "../schema/access_token";
 import type { User } from "../schema/user";
 import { auth } from "../services/auth.server";
+import type { TokenPair } from "../services/oauth";
 import { callApi, getAccessToken } from "../services/oauth";
 import { gTokenPairsMap } from "./authed.cj._index";
-
 const gProvider = AuthProvider.ebay
 
 type ItemSummary = {
@@ -38,21 +42,44 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
         user = { email: env.cj_user_name } as User
     }
 
+    let tokenPair: TokenPair | null = null
     if (!gTokenPairsMap.get(gProvider) || !gTokenPairsMap.get(gProvider)?.accessToken) {
         console.log(`ebay getting token pair from db`)
-        let tokenPair = await getAccessToken(user, gProvider, env)
-        if (tokenPair) {
+        tokenPair = await getAccessToken(user, gProvider, env)
+        if (tokenPair?.accessToken) {
             gTokenPairsMap.set(gProvider, tokenPair)
         }
     }
 
     if (!gTokenPairsMap.get(gProvider)) {
         console.log(`ebay redirecting to consent api`)
-        let contentUrl = `${env.ebay_auth_host}oauth2/authorize?client_id=${env.ebay_client_id}&response_type=code&redirect_uri=${env.ebay_redirect_uri}&scope=${env.ebay_scopes}&state=${env.ebay_consent_api_state}`
+
+        let state = null
+        if (tokenPair?.state) {
+            state = tokenPair.state
+        } else {
+            state = uuidv4()
+            let tokens = {
+                email: user!.email!,
+                provider: gProvider.toString(),
+                state: state.toString(),
+            }
+
+            await drizzle(env.DB).insert(access_tokens).values(tokens)
+                .onConflictDoUpdate(
+                    {
+                        target: [access_tokens.email, access_tokens.provider],
+                        set: {
+                            ...tokens,
+                            state: sql`coalesce(${tokens.state}, excluded.state)`,
+                        }
+                    }).returning();
+        }
+        let contentUrl = `${env.ebay_auth_host}oauth2/authorize?client_id=${env.ebay_client_id}&response_type=code&redirect_uri=${env.ebay_redirect_uri}&scope=${env.ebay_scopes}&state=${state}`
         return redirect(contentUrl)
     }
 
-    return json({ products: await searchProducts(env) })
+    return json({ products: await searchProducts(env, user) })
 };
 
 function BuildEbayHeader(token: string) {
@@ -69,9 +96,9 @@ async function call<T>(url: string, token: string): Promise<T> {
         .then(response => response.json<T>())
 }
 
-async function searchProducts(env: Env): Promise<SearchProductsResponse> {
+async function searchProducts(env: Env, user: User): Promise<SearchProductsResponse> {
     return await callApi<SearchProductsResponse>(
-        env, gProvider, env.ebay_host,
+        env, user, gProvider, env.ebay_host,
         'buy/browse/v1/item_summary/search?q=drone&limit=3',
         call<SearchProductsResponse>);
 }
