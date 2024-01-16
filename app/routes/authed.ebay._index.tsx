@@ -1,3 +1,4 @@
+import { Box } from "@mui/material";
 import { json, redirect, type LoaderFunction, type LoaderFunctionArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
 import { sql } from "drizzle-orm";
@@ -16,7 +17,13 @@ const gProvider = AuthProvider.ebay
 type ItemSummary = {
     itemId: string,
     title: string,
-    itemHref: string,
+    image: {
+        imageUrl: string,
+    },
+    price: {
+        value: string,
+        currency: string,
+    },
     itemWebUrl: string
 }
 
@@ -106,10 +113,29 @@ async function searchProducts(env: Env, user: User): Promise<SearchProductsRespo
 
 export default function ProductList() {
     let { products } = useLoaderData<typeof loader>();
-
+    function buildCards(response: SearchProductsResponse) {
+        let cards = []
+        for (let i = 0; i < response.itemSummaries.length; i++) {
+            let item = response.itemSummaries[i]
+            cards.push(
+                <div className="max-w-sm rounded overflow-hidden shadow-lg md-5 mb-4" key={item.itemId}>
+                    <div>
+                        {item.title}
+                    </div>
+                    <div>{item.price.value} {item.price.currency}</div>
+                    <div>
+                        <img src={item.image.imageUrl} alt={item.title} />
+                    </div>
+                </div>
+            )
+        }
+        return cards
+    }
     return (<>
         <div>
-            {JSON.stringify(products)}
+            <Box sx={{ flexGrow: 1 }}>
+                {buildCards(products)}
+            </Box>
         </div>
     </>)
 }
