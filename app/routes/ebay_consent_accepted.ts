@@ -75,9 +75,9 @@ export let loader: LoaderFunction = async ({ request, context }: LoaderFunctionA
             rows[0],
             gProvider,
             resp.access_token,
-            resp.expires_in, //getSecondsFromNow().getSeconds(),
+            resp.expires_in,
             resp.refresh_token,
-            resp.refresh_token_expires_in, //getSecondsFromNow(resp.refresh_token_expires_in).getSeconds(), // ebay has 560 seconds
+            resp.refresh_token_expires_in,
         )
         return redirect('/authed/ebay');
     } catch (e) {
