@@ -4,6 +4,8 @@
 
 ## Development
 
+NOTE: you need .dev.vars for local development secrets.
+
 From your terminal:
 
 ```sh
@@ -70,7 +72,7 @@ npx wrangler d1 migrations apply $DATABASE_NAME  --local
 
 insert seed data in local db. DO NOT USE npx on MAC!
 ```
-wrangler d1 execute $DATABASE_NAME  --file=./seed.sql --local 
+npx wrangler d1 execute $DATABASE_NAME  --file=./seed.sql --local 
 ```
 
 run CF pages locally. 
